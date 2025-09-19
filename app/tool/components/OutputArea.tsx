@@ -14,12 +14,24 @@ const ImageWithFallback = ({ src, alt, onImageClick }: {
 
   // 检查URL是否有效
   const isValidUrl = (url: string): boolean => {
-    try {
-      new URL(url);
-      return url.startsWith('http://') || url.startsWith('https://');
-    } catch {
-      return false;
+    if (!url || typeof url !== 'string') return false;
+    
+    // 允许HTTP/HTTPS URL
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      try {
+        new URL(url);
+        return true;
+      } catch {
+        return false;
+      }
     }
+    
+    // 允许相对路径（本地图片）
+    if (url.startsWith('/')) {
+      return true;
+    }
+    
+    return false;
   };
 
   // 如果URL无效，直接显示错误状态

@@ -5,6 +5,7 @@ import { generateImages, getErrorMessage, validateGenerateRequest, type Generate
 import TestConnection from './TestConnection';
 import FlowDebugger from './FlowDebugger';
 import APITokenSetup from './APITokenSetup';
+import SimpleImageTest from './SimpleImageTest';
 
 interface InputAreaProps {
   onImagesGenerated: (images: GeneratedImage[]) => void;
@@ -110,6 +111,9 @@ const InputArea = ({ onImagesGenerated }: InputAreaProps) => {
 
         {/* API Connection Test */}
         <TestConnection />
+
+        {/* Simple Image Test */}
+        <SimpleImageTest />
 
         {/* Flow Debugger */}
         <FlowDebugger />

@@ -86,21 +86,54 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
       height
     });
 
-    // 调用Replicate API
-    const output = await replicate.run(
-      'black-forest-labs/flux-dev',
-      {
-        input: {
-          prompt: prompt.trim(),
-          num_outputs: imageCount,
-          width: width,
-          height: height,
-          num_inference_steps: 28,
-          guidance_scale: 3.5,
-          seed: Math.floor(Math.random() * 1000000), // 随机种子
-        },
+    let output;
+    
+    try {
+      // 调用Replicate API - 使用正确的参数格式
+      output = await replicate.run(
+        'black-forest-labs/flux-dev',
+        {
+          input: {
+            prompt: prompt.trim(),
+            num_outputs: imageCount,
+            aspect_ratio: `${width}:${height}`, // 某些模型可能需要aspect_ratio而不是width/height
+            output_format: "webp",
+            output_quality: 80,
+            num_inference_steps: 28,
+            guidance_scale: 3.5,
+          }
+        }
+      );
+
+      console.log('Replicate prediction result (aspect_ratio format):', output);
+    } catch (replicateError) {
+      console.error('Replicate API error with aspect_ratio format:', replicateError);
+      
+      try {
+        // 尝试备用参数格式
+        console.log('Trying alternative parameter format with width/height...');
+        output = await replicate.run(
+          'black-forest-labs/flux-dev',
+          {
+            input: {
+              prompt: prompt.trim(),
+              width: width,
+              height: height,
+              num_outputs: imageCount,
+              num_inference_steps: 28,
+              guidance_scale: 3.5,
+            }
+          }
+        );
+        console.log('Replicate prediction result (width/height format):', output);
+      } catch (secondError) {
+        console.error('Replicate API error with width/height format:', secondError);
+        return NextResponse.json(
+          { success: false, error: `Replicate API failed: ${secondError instanceof Error ? secondError.message : 'Unknown error'}` },
+          { status: 500 }
+        );
       }
-    ) as string[];
+    }
 
     // 处理输出结果
     console.log('Raw Replicate output:', JSON.stringify(output, null, 2));
@@ -119,15 +152,33 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
     let imageUrls: string[] = [];
     
     if (Array.isArray(output)) {
-      imageUrls = output;
+      // 处理数组格式的输出
+      for (const item of output) {
+        if (typeof item === 'string') {
+          imageUrls.push(item);
+        } else if (item && typeof item === 'object') {
+          // 处理ReadableStream或其他对象
+          if (item.constructor && item.constructor.name === 'ReadableStream') {
+            console.log('Found ReadableStream, this might be a file stream');
+            // ReadableStream通常需要特殊处理，可能需要转换为URL
+            continue;
+          } else if (item.url) {
+            imageUrls.push(item.url);
+          } else {
+            console.log('Unknown object in output array:', item);
+          }
+        }
+      }
     } else if (typeof output === 'string') {
       imageUrls = [output];
-    } else if (output && typeof output === 'object' && output.url) {
-      // 如果输出是对象且有url属性
-      imageUrls = [output.url];
-    } else if (output && typeof output === 'object' && Array.isArray(output.images)) {
-      // 如果输出是对象且有images数组
-      imageUrls = output.images;
+    } else if (output && typeof output === 'object') {
+      if (output.url) {
+        imageUrls = [output.url];
+      } else if (Array.isArray(output.images)) {
+        imageUrls = output.images.filter((url: any) => typeof url === 'string');
+      } else {
+        console.error('Unknown object format from Replicate:', output);
+      }
     } else {
       console.error('Unexpected output format from Replicate:', output);
       return NextResponse.json(
@@ -139,7 +190,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
     console.log('Processed image URLs:', imageUrls);
 
     // 验证所有URL都是有效字符串
-    const validUrls = imageUrls.filter(url => typeof url === 'string' && url.length > 0);
+    const validUrls = imageUrls.filter(url => typeof url === 'string' && url.length > 0 && (url.startsWith('http://') || url.startsWith('https://')));
     
     if (validUrls.length === 0) {
       console.error('No valid image URLs found in output:', imageUrls);
