@@ -103,16 +103,54 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
     ) as string[];
 
     // 处理输出结果
-    if (!output || !Array.isArray(output)) {
-      console.error('Unexpected output from Replicate:', output);
+    console.log('Raw Replicate output:', JSON.stringify(output, null, 2));
+    console.log('Output type:', typeof output);
+    console.log('Is array:', Array.isArray(output));
+
+    if (!output) {
+      console.error('No output from Replicate');
       return NextResponse.json(
-        { success: false, error: 'Invalid response from image generation service' },
+        { success: false, error: 'No output from image generation service' },
+        { status: 500 }
+      );
+    }
+
+    // 处理不同的输出格式
+    let imageUrls: string[] = [];
+    
+    if (Array.isArray(output)) {
+      imageUrls = output;
+    } else if (typeof output === 'string') {
+      imageUrls = [output];
+    } else if (output && typeof output === 'object' && output.url) {
+      // 如果输出是对象且有url属性
+      imageUrls = [output.url];
+    } else if (output && typeof output === 'object' && Array.isArray(output.images)) {
+      // 如果输出是对象且有images数组
+      imageUrls = output.images;
+    } else {
+      console.error('Unexpected output format from Replicate:', output);
+      return NextResponse.json(
+        { success: false, error: 'Invalid response format from image generation service' },
+        { status: 500 }
+      );
+    }
+
+    console.log('Processed image URLs:', imageUrls);
+
+    // 验证所有URL都是有效字符串
+    const validUrls = imageUrls.filter(url => typeof url === 'string' && url.length > 0);
+    
+    if (validUrls.length === 0) {
+      console.error('No valid image URLs found in output:', imageUrls);
+      return NextResponse.json(
+        { success: false, error: 'No valid image URLs in response' },
         { status: 500 }
       );
     }
 
     // 转换为我们的格式
-    const images: GeneratedImage[] = output.map((url, index) => ({
+    const images: GeneratedImage[] = validUrls.map((url, index) => ({
       id: `${Date.now()}-${index}`,
       url: url,
       prompt: prompt,
@@ -120,7 +158,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
       createdAt: new Date().toISOString(),
     }));
 
-    console.log(`Successfully generated ${images.length} images`);
+    console.log(`Successfully generated ${images.length} images with URLs:`, images.map(img => img.url));
 
     return NextResponse.json({
       success: true,

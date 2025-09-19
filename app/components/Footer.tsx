@@ -1,5 +1,6 @@
 const Footer = () => {
-  const currentYear = new Date().getFullYear();
+  // 使用固定年份避免hydration mismatch
+  const currentYear = 2025;
 
   const footerLinks = {
     product: [

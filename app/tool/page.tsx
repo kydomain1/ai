@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import InputArea from './components/InputArea';
 import OutputArea from './components/OutputArea';
+import ConsoleLogger from './components/ConsoleLogger';
+import APIResponseDebugger from './components/APIResponseDebugger';
 import { type GeneratedImage } from '../lib/api-client';
 
 export default function ToolPage() {
@@ -24,6 +26,12 @@ export default function ToolPage() {
       
       {/* Output Area */}
       <OutputArea generatedImages={generatedImages} />
+      
+      {/* Console Logger for debugging */}
+      <ConsoleLogger />
+      
+      {/* API Response Debugger */}
+      <APIResponseDebugger />
     </div>
   );
 }

@@ -2,6 +2,150 @@
 
 import { useState } from 'react';
 import { type GeneratedImage } from '../../lib/api-client';
+import ImageDebugger from './ImageDebugger';
+
+// 图片加载组件，带有加载状态和错误处理
+const ImageWithFallback = ({ src, alt, onImageClick }: { 
+  src: string; 
+  alt: string; 
+  onImageClick: () => void; 
+}) => {
+  const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+
+  // 检查URL是否有效
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return url.startsWith('http://') || url.startsWith('https://');
+    } catch {
+      return false;
+    }
+  };
+
+  // 如果URL无效，直接显示错误状态
+  if (!src || typeof src !== 'string' || !isValidUrl(src)) {
+    console.error('Invalid image URL:', src);
+    return (
+      <div 
+        className="w-full h-full bg-gradient-to-br from-red-400 via-pink-500 to-purple-500 cursor-pointer flex items-center justify-center"
+        onClick={onImageClick}
+      >
+        <div className="text-center text-white">
+          <svg className="w-12 h-12 mx-auto mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-sm font-medium">Invalid URL</p>
+          <p className="text-xs opacity-90">URL: {String(src).substring(0, 30)}...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleImageLoad = () => {
+    setImageStatus('loaded');
+  };
+
+  const handleImageError = () => {
+    console.error('Failed to load image:', src);
+    setImageStatus('error');
+  };
+
+  return (
+    <div className="w-full h-full relative">
+      {/* Loading state */}
+      {imageStatus === 'loading' && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+            <p className="text-sm text-gray-500">Loading image...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error state */}
+      {imageStatus === 'error' && (
+        <div 
+          className="w-full h-full bg-gradient-to-br from-red-400 via-pink-500 to-purple-500 cursor-pointer flex items-center justify-center"
+          onClick={onImageClick}
+        >
+          <div className="text-center text-white">
+            <svg className="w-12 h-12 mx-auto mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm font-medium">Failed to load</p>
+            <p className="text-xs opacity-90">Click to retry</p>
+          </div>
+        </div>
+      )}
+
+      {/* Actual image */}
+      <img
+        src={src}
+        alt={alt}
+        className={`w-full h-full object-cover cursor-pointer rounded-t-xl transition-opacity duration-200 ${
+          imageStatus === 'loaded' ? 'opacity-100' : 'opacity-0'
+        }`}
+        onClick={onImageClick}
+        onLoad={handleImageLoad}
+        onError={handleImageError}
+        style={{ display: imageStatus === 'error' ? 'none' : 'block' }}
+      />
+    </div>
+  );
+};
+
+// 全屏图片组件
+const FullscreenImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+
+  const handleImageLoad = () => {
+    setImageStatus('loaded');
+  };
+
+  const handleImageError = () => {
+    console.error('Failed to load fullscreen image:', src);
+    setImageStatus('error');
+  };
+
+  return (
+    <div className="relative">
+      {/* Loading state */}
+      {imageStatus === 'loading' && (
+        <div className="flex items-center justify-center p-16">
+          <div className="text-center text-white">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+            <p className="text-lg">Loading full image...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error state */}
+      {imageStatus === 'error' && (
+        <div className="bg-gradient-to-br from-red-400 via-pink-500 to-purple-500 rounded-lg max-h-[80vh] flex items-center justify-center p-8">
+          <div className="text-center text-white">
+            <svg className="w-32 h-32 mx-auto mb-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-xl font-medium">Failed to load image</p>
+            <p className="text-sm opacity-90 mt-2">The image could not be displayed</p>
+          </div>
+        </div>
+      )}
+
+      {/* Actual image */}
+      <img
+        src={src}
+        alt={alt}
+        className={`max-w-full max-h-full object-contain rounded-lg transition-opacity duration-300 ${
+          imageStatus === 'loaded' ? 'opacity-100' : 'opacity-0'
+        }`}
+        onLoad={handleImageLoad}
+        onError={handleImageError}
+        style={{ display: imageStatus === 'error' ? 'none' : 'block' }}
+      />
+    </div>
+  );
+};
 
 interface OutputAreaProps {
   generatedImages: GeneratedImage[];
@@ -18,14 +162,14 @@ const OutputArea = ({ generatedImages }: OutputAreaProps) => {
       url: '/images/山景.png',
       prompt: 'A beautiful mountain landscape at sunset',
       size: '512x512',
-      createdAt: new Date().toISOString()
+      createdAt: '2025-01-01T12:00:00.000Z' // 使用固定时间避免hydration mismatch
     },
     {
       id: '2', 
       url: '/images/夜景.png',
       prompt: 'A futuristic city with neon lights',
       size: '512x512',
-      createdAt: new Date().toISOString()
+      createdAt: '2025-01-01T12:01:00.000Z' // 使用固定时间避免hydration mismatch
     }
   ];
 
@@ -67,6 +211,9 @@ const OutputArea = ({ generatedImages }: OutputAreaProps) => {
           </p>
         </div>
 
+        {/* Debug Info for generated images */}
+        <ImageDebugger images={generatedImages} />
+
         {/* Empty State */}
         {displayImages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-96 text-center">
@@ -92,23 +239,10 @@ const OutputArea = ({ generatedImages }: OutputAreaProps) => {
               >
                 {/* Image */}
                 <div className="relative aspect-square bg-gray-100">
-                  <img
+                  <ImageWithFallback 
                     src={image.url}
                     alt={image.prompt}
-                    className="w-full h-full object-cover cursor-pointer rounded-t-xl"
-                    onClick={() => handleImageClick(image)}
-                    onError={(e) => {
-                      // 如果图片加载失败，显示占位符
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      target.parentElement!.innerHTML = `
-                        <div class="w-full h-full bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 cursor-pointer flex items-center justify-center" onclick="handleImageClick">
-                          <svg class="w-12 h-12 text-white opacity-80" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                          </svg>
-                        </div>
-                      `;
-                    }}
+                    onImageClick={() => handleImageClick(image)}
                   />
                   
                   {/* Overlay with actions */}
@@ -199,22 +333,9 @@ const OutputArea = ({ generatedImages }: OutputAreaProps) => {
             
             {/* Image */}
             <div className="rounded-lg max-h-[80vh] flex items-center justify-center">
-              <img
+              <FullscreenImage 
                 src={selectedImage.url}
                 alt={selectedImage.prompt}
-                className="max-w-full max-h-full object-contain rounded-lg"
-                onError={(e) => {
-                  // 如果图片加载失败，显示占位符
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  target.parentElement!.innerHTML = `
-                    <div class="bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 rounded-lg max-h-[80vh] flex items-center justify-center p-8">
-                      <svg class="w-32 h-32 text-white opacity-80" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                      </svg>
-                    </div>
-                  `;
-                }}
               />
             </div>
             
