@@ -1,35 +1,31 @@
 'use client';
 
 import { useState } from 'react';
+import { type GeneratedImage } from '../../lib/api-client';
 
-interface GeneratedImage {
-  id: string;
-  url: string;
-  prompt: string;
-  size: string;
-  createdAt: Date;
+interface OutputAreaProps {
+  generatedImages: GeneratedImage[];
 }
 
-const OutputArea = () => {
-  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
+const OutputArea = ({ generatedImages }: OutputAreaProps) => {
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // 模拟生成的图片数据
+  // 模拟生成的图片数据（仅在没有实际生成图片时显示）
   const mockImages: GeneratedImage[] = [
     {
       id: '1',
       url: '/images/山景.png',
       prompt: 'A beautiful mountain landscape at sunset',
       size: '512x512',
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     },
     {
       id: '2', 
       url: '/images/夜景.png',
       prompt: 'A futuristic city with neon lights',
       size: '512x512',
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     }
   ];
 
@@ -44,7 +40,9 @@ const OutputArea = () => {
   };
 
   const handleDelete = (imageId: string) => {
-    setGeneratedImages(prev => prev.filter(img => img.id !== imageId));
+    // TODO: 实现删除功能 - 需要通过回调函数通知父组件
+    console.log('Delete image:', imageId);
+    // 暂时不实现删除功能，因为状态现在由父组件管理
   };
 
   const handleCloseFullscreen = () => {
@@ -52,6 +50,7 @@ const OutputArea = () => {
     setSelectedImage(null);
   };
 
+  // 优先显示实际生成的图片，如果没有则显示示例图片
   const displayImages = generatedImages.length > 0 ? generatedImages : mockImages;
 
   return (
@@ -150,7 +149,7 @@ const OutputArea = () => {
                   </p>
                   <div className="flex justify-between items-center text-xs text-gray-500">
                     <span>{image.size}</span>
-                    <span>{image.createdAt.toLocaleDateString()}</span>
+                    <span>{new Date(image.createdAt).toLocaleDateString()}</span>
                   </div>
                   
                   {/* Action buttons */}
@@ -224,7 +223,7 @@ const OutputArea = () => {
               <p className="text-gray-800 mb-2">{selectedImage.prompt}</p>
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <span>Size: {selectedImage.size}</span>
-                <span>Created: {selectedImage.createdAt.toLocaleString()}</span>
+                <span>Created: {new Date(selectedImage.createdAt).toLocaleString()}</span>
               </div>
             </div>
           </div>

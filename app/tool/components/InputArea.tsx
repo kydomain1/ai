@@ -1,12 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { generateImages, getErrorMessage, validateGenerateRequest, type GeneratedImage } from '../../lib/api-client';
 
-const InputArea = () => {
+interface InputAreaProps {
+  onImagesGenerated: (images: GeneratedImage[]) => void;
+}
+
+const InputArea = ({ onImagesGenerated }: InputAreaProps) => {
   const [prompt, setPrompt] = useState('');
   const [imageCount, setImageCount] = useState(1);
   const [imageSize, setImageSize] = useState('512x512');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handlePromptChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPrompt(event.target.value);
@@ -20,20 +26,48 @@ const InputArea = () => {
     setImageSize(event.target.value);
   };
 
-  const handleGenerate = () => {
-    if (!prompt.trim()) {
-      alert('Please enter a prompt to generate images.');
+  const handleGenerate = async () => {
+    // 清除之前的错误
+    setError(null);
+    
+    // 验证输入
+    const validationErrors = validateGenerateRequest({
+      prompt,
+      imageCount,
+      imageSize,
+    });
+    
+    if (validationErrors.length > 0) {
+      setError(validationErrors.join('; '));
       return;
     }
     
     setIsGenerating(true);
-    // TODO: 这里将来会添加API调用逻辑
-    console.log('Generating images with:', { prompt, imageCount, imageSize });
     
-    // 模拟生成过程
-    setTimeout(() => {
+    try {
+      console.log('Generating images with:', { prompt: prompt.substring(0, 50) + '...', imageCount, imageSize });
+      
+      const images = await generateImages({
+        prompt: prompt.trim(),
+        imageCount,
+        imageSize,
+      });
+      
+      console.log(`Successfully generated ${images.length} images`);
+      
+      // 将生成的图片传递给父组件
+      onImagesGenerated(images);
+      
+      // 可选：清空prompt或显示成功消息
+      // setPrompt('');
+      
+    } catch (error) {
+      console.error('Error generating images:', error);
+      const errorMessage = getErrorMessage(error);
+      setError(errorMessage);
+    } finally {
       setIsGenerating(false);
-    }, 3000);
+    }
   };
 
   const imageSizeOptions = [
@@ -187,6 +221,21 @@ const InputArea = () => {
             </div>
           </div>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start space-x-2">
+              <svg className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h4 className="text-sm font-medium text-red-800 mb-1">Generation Error</h4>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Generate Button */}
         <button
