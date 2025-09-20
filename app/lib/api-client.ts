@@ -99,6 +99,8 @@ export function getErrorMessage(error: unknown): string {
         return 'Invalid input parameters. Please check your prompt and settings.';
       case 401:
         return 'Authentication failed. Please check your API configuration.';
+      case 402:
+        return 'Insufficient credit. Please add credit to your Replicate account and try again.';
       case 429:
         return 'Too many requests. Please wait a moment and try again.';
       case 500:

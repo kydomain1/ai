@@ -297,6 +297,17 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
           { status: 401 }
         );
       }
+      
+      // 检查是否是计费错误
+      if (error.message.includes('402') || error.message.includes('Payment Required') || error.message.includes('Insufficient credit')) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Insufficient credit. Please add credit to your Replicate account at https://replicate.com/account/billing#billing and wait a few minutes before trying again.' 
+          },
+          { status: 402 }
+        );
+      }
 
       // 检查是否是配额错误
       if (error.message.includes('quota') || error.message.includes('limit')) {

@@ -37,6 +37,8 @@ const ImageWithFallback = ({ src, alt, onImageClick }: {
   // 如果URL无效，直接显示错误状态
   if (!src || typeof src !== 'string' || !isValidUrl(src)) {
     console.error('Invalid image URL:', src);
+    console.error('URL type:', typeof src);
+    console.error('URL length:', src ? src.length : 'undefined');
     return (
       <div 
         className="w-full h-full bg-gradient-to-br from-red-400 via-pink-500 to-purple-500 cursor-pointer flex items-center justify-center"
@@ -52,6 +54,7 @@ const ImageWithFallback = ({ src, alt, onImageClick }: {
       </div>
     );
   }
+
 
   const handleImageLoad = () => {
     setImageStatus('loaded');
@@ -171,14 +174,14 @@ const OutputArea = ({ generatedImages }: OutputAreaProps) => {
   const mockImages: GeneratedImage[] = [
     {
       id: '1',
-      url: '/images/山景.png',
+      url: '/images/mountain.png',
       prompt: 'A beautiful mountain landscape at sunset',
       size: '512x512',
       createdAt: '2025-01-01T12:00:00.000Z' // 使用固定时间避免hydration mismatch
     },
     {
       id: '2', 
-      url: '/images/夜景.png',
+      url: '/images/nightscape.png',
       prompt: 'A futuristic city with neon lights',
       size: '512x512',
       createdAt: '2025-01-01T12:01:00.000Z' // 使用固定时间避免hydration mismatch
@@ -249,13 +252,13 @@ const OutputArea = ({ generatedImages }: OutputAreaProps) => {
                 key={image.id}
                 className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
               >
-                {/* Image */}
-                <div className="relative aspect-square bg-gray-100">
-                  <ImageWithFallback 
-                    src={image.url}
-                    alt={image.prompt}
-                    onImageClick={() => handleImageClick(image)}
-                  />
+                  {/* Image */}
+                  <div className="relative aspect-square bg-gray-100">
+                    <ImageWithFallback 
+                      src={image.url}
+                      alt={image.prompt}
+                      onImageClick={() => handleImageClick(image)}
+                    />
                   
                   {/* Overlay with actions */}
                   <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center opacity-0 hover:opacity-100">

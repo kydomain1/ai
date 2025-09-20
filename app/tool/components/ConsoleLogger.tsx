@@ -1,15 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const ConsoleLogger = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [isVisible, setIsVisible] = useState(false);
+  const pendingLogs = useRef<string[]>([]);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // 重写console.log和console.error来捕获日志
     const originalLog = console.log;
     const originalError = console.error;
+
+    const flushLogs = () => {
+      if (pendingLogs.current.length > 0) {
+        setLogs(prev => [...prev.slice(-19), ...pendingLogs.current]);
+        pendingLogs.current = [];
+      }
+    };
 
     console.log = (...args: any[]) => {
       const message = args.map(arg => 
@@ -17,7 +26,14 @@ const ConsoleLogger = () => {
       ).join(' ');
       // 只在客户端获取时间，避免hydration mismatch
       const timestamp = typeof window !== 'undefined' ? new Date().toLocaleTimeString() : '';
-      setLogs(prev => [...prev.slice(-19), `[LOG] ${timestamp}: ${message}`]);
+      pendingLogs.current.push(`[LOG] ${timestamp}: ${message}`);
+      
+      // 使用setTimeout来延迟状态更新，避免在渲染过程中更新
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(flushLogs, 100);
+      
       originalLog(...args);
     };
 
@@ -27,13 +43,23 @@ const ConsoleLogger = () => {
       ).join(' ');
       // 只在客户端获取时间，避免hydration mismatch
       const timestamp = typeof window !== 'undefined' ? new Date().toLocaleTimeString() : '';
-      setLogs(prev => [...prev.slice(-19), `[ERROR] ${timestamp}: ${message}`]);
+      pendingLogs.current.push(`[ERROR] ${timestamp}: ${message}`);
+      
+      // 使用setTimeout来延迟状态更新，避免在渲染过程中更新
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(flushLogs, 100);
+      
       originalError(...args);
     };
 
     return () => {
       console.log = originalLog;
       console.error = originalError;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
 
