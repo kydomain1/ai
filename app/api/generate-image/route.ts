@@ -67,7 +67,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
       );
     }
 
-    // 解析图片尺寸
+    // 解析图片尺寸并映射到支持的aspect_ratio
     const [widthStr, heightStr] = imageSize.split('x');
     const width = parseInt(widthStr, 10);
     const height = parseInt(heightStr, 10);
@@ -79,55 +79,108 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
       );
     }
 
+    // 映射到Replicate支持的aspect_ratio格式
+    const getAspectRatio = (w: number, h: number): string => {
+      const ratio = w / h;
+      if (Math.abs(ratio - 1) < 0.1) return '1:1';  // 正方形
+      if (Math.abs(ratio - 16/9) < 0.1) return '16:9';  // 宽屏
+      if (Math.abs(ratio - 9/16) < 0.1) return '9:16';  // 竖屏
+      if (Math.abs(ratio - 3/2) < 0.1) return '3:2';   // 横向
+      if (Math.abs(ratio - 2/3) < 0.1) return '2:3';   // 纵向
+      if (Math.abs(ratio - 4/3) < 0.1) return '4:3';   // 传统
+      if (Math.abs(ratio - 3/4) < 0.1) return '3:4';   // 传统竖向
+      if (Math.abs(ratio - 5/4) < 0.1) return '5:4';   // 略方
+      if (Math.abs(ratio - 4/5) < 0.1) return '4:5';   // 略竖
+      if (Math.abs(ratio - 21/9) < 0.1) return '21:9'; // 超宽
+      if (Math.abs(ratio - 9/21) < 0.1) return '9:21'; // 超竖
+      // 默认返回最接近的比例
+      return ratio > 1 ? '16:9' : '9:16';
+    };
+    
+    const aspectRatio = getAspectRatio(width, height);
+
     console.log('Generating images with Replicate:', {
       prompt: prompt.substring(0, 50) + '...',
       num_outputs: imageCount,
-      width,
-      height
+      aspect_ratio: aspectRatio,
+      original_size: `${width}x${height}`
     });
 
     let output;
     
     try {
-      // 调用Replicate API - 使用正确的参数格式
-      output = await replicate.run(
-        'black-forest-labs/flux-dev',
-        {
-          input: {
-            prompt: prompt.trim(),
-            num_outputs: imageCount,
-            aspect_ratio: `${width}:${height}`, // 某些模型可能需要aspect_ratio而不是width/height
-            output_format: "webp",
-            output_quality: 80,
-            num_inference_steps: 28,
-            guidance_scale: 3.5,
-          }
+      // 使用Replicate的predictions API来创建预测并等待完成
+      console.log('Creating prediction with Replicate API...');
+      const prediction = await replicate.predictions.create({
+        model: 'black-forest-labs/flux-dev',
+        input: {
+          prompt: prompt.trim(),
+          num_outputs: imageCount,
+          aspect_ratio: aspectRatio,
+          output_format: "webp",
+          output_quality: 80,
+          num_inference_steps: 28,
+          guidance_scale: 3.5,
         }
-      );
+      });
 
-      console.log('Replicate prediction result (aspect_ratio format):', output);
+      console.log('Prediction created:', prediction.id);
+      console.log('Prediction status:', prediction.status);
+
+      // 等待预测完成
+      let finalPrediction = prediction;
+      let attempts = 0;
+      const maxAttempts = 60; // 最多等待5分钟 (60 * 5秒)
+
+      while (finalPrediction.status !== 'succeeded' && finalPrediction.status !== 'failed' && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // 等待5秒
+        finalPrediction = await replicate.predictions.get(prediction.id);
+        attempts++;
+        console.log(`Attempt ${attempts}: Status = ${finalPrediction.status}`);
+      }
+
+      if (finalPrediction.status === 'failed') {
+        console.error('Prediction failed:', finalPrediction.error);
+        return NextResponse.json(
+          { success: false, error: `Image generation failed: ${finalPrediction.error || 'Unknown error'}` },
+          { status: 500 }
+        );
+      }
+
+      if (finalPrediction.status !== 'succeeded') {
+        console.error('Prediction timed out');
+        return NextResponse.json(
+          { success: false, error: 'Image generation timed out. Please try again.' },
+          { status: 408 }
+        );
+      }
+
+      output = finalPrediction.output;
+      console.log('Final prediction output:', output);
+
     } catch (replicateError) {
-      console.error('Replicate API error with aspect_ratio format:', replicateError);
+      console.error('Replicate API error:', replicateError);
       
+      // 如果predictions API失败，回退到run API
       try {
-        // 尝试备用参数格式
-        console.log('Trying alternative parameter format with width/height...');
+        console.log('Falling back to run API...');
         output = await replicate.run(
           'black-forest-labs/flux-dev',
           {
             input: {
               prompt: prompt.trim(),
-              width: width,
-              height: height,
               num_outputs: imageCount,
+              aspect_ratio: aspectRatio,
+              output_format: "webp",
+              output_quality: 80,
               num_inference_steps: 28,
               guidance_scale: 3.5,
             }
           }
         );
-        console.log('Replicate prediction result (width/height format):', output);
+        console.log('Run API result:', output);
       } catch (secondError) {
-        console.error('Replicate API error with width/height format:', secondError);
+        console.error('Both prediction and run APIs failed:', secondError);
         return NextResponse.json(
           { success: false, error: `Replicate API failed: ${secondError instanceof Error ? secondError.message : 'Unknown error'}` },
           { status: 500 }
@@ -157,13 +210,19 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
         if (typeof item === 'string') {
           imageUrls.push(item);
         } else if (item && typeof item === 'object') {
-          // 处理ReadableStream或其他对象
+          // 处理ReadableStream - Replicate通常返回这种格式
           if (item.constructor && item.constructor.name === 'ReadableStream') {
-            console.log('Found ReadableStream, this might be a file stream');
-            // ReadableStream通常需要特殊处理，可能需要转换为URL
+            console.log('Found ReadableStream - this indicates successful generation');
+            // ReadableStream本身就是图片数据，但我们需要URL
+            // 对于Replicate，ReadableStream通常意味着生成成功，但我们需要等待URL
+            // 这种情况下，我们应该重新检查输出格式
             continue;
           } else if (item.url) {
             imageUrls.push(item.url);
+          } else if (typeof item === 'object' && Object.keys(item).length === 0) {
+            // 空对象可能意味着数据还在处理中
+            console.log('Found empty object in output - data might still be processing');
+            continue;
           } else {
             console.log('Unknown object in output array:', item);
           }
@@ -176,6 +235,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
         imageUrls = [output.url];
       } else if (Array.isArray(output.images)) {
         imageUrls = output.images.filter((url: any) => typeof url === 'string');
+      } else if (output.constructor && output.constructor.name === 'ReadableStream') {
+        console.log('Single ReadableStream output detected');
+        // 对于单个ReadableStream，我们需要特殊处理
+        return NextResponse.json(
+          { success: false, error: 'Image generation returned stream data instead of URLs. This might indicate the model is still processing.' },
+          { status: 202 } // 202 Accepted - 请求已接受但尚未完成
+        );
       } else {
         console.error('Unknown object format from Replicate:', output);
       }
