@@ -1,3 +1,4 @@
+
 const WhatIs = () => {
   return (
     <section id="what-is" className="py-20 bg-white">
@@ -7,8 +8,8 @@ const WhatIs = () => {
             What is AI Image Generation?
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            AI Image Generation is a revolutionary technology that uses artificial intelligence 
-            to create unique, high-quality images from simple text descriptions.
+            Transform text into stunning visuals with our AI Image Generation platform. 
+            Create professional images instantly from simple descriptions.
           </p>
         </div>
 
@@ -24,10 +25,9 @@ const WhatIs = () => {
                 </div>
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Lightning Fast</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Lightning Fast AI Image Generation</h3>
                 <p className="text-gray-600">
-                  Generate professional-quality images in seconds, not hours. Our advanced AI models 
-                  work at unprecedented speed to bring your vision to life.
+                  Generate professional-quality images in seconds with our advanced AI Image Generation technology.
                 </p>
               </div>
             </div>
@@ -41,10 +41,9 @@ const WhatIs = () => {
                 </div>
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Unlimited Creativity</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Unlimited AI Image Generation Creativity</h3>
                 <p className="text-gray-600">
-                  From realistic portraits to abstract art, fantasy landscapes to product mockups - 
-                  there are no limits to what you can create.
+                  From realistic portraits to abstract art, our AI Image Generation platform offers unlimited creative possibilities.
                 </p>
               </div>
             </div>
@@ -58,10 +57,9 @@ const WhatIs = () => {
                 </div>
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Easy to Learn</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Easy AI Image Generation</h3>
                 <p className="text-gray-600">
-                  No technical skills required. Simply describe what you want in plain English, 
-                  and our AI will handle the rest.
+                  No technical skills required. Simply describe what you want and our AI Image Generation technology handles the rest.
                 </p>
               </div>
             </div>
@@ -75,7 +73,7 @@ const WhatIs = () => {
                 <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
                   <p className="text-sm text-gray-500 mb-2">Your prompt:</p>
                   <p className="text-gray-800 font-medium">
-                    "A majestic mountain landscape at sunset with a crystal clear lake"
+                    &quot;Mountain landscape at sunset&quot;
                   </p>
                 </div>
                 
@@ -90,13 +88,13 @@ const WhatIs = () => {
 
                 {/* Output simulation */}
                 <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                  <p className="text-sm text-gray-500 mb-3">AI Generated Result:</p>
+                  <p className="text-sm text-gray-500 mb-3">Generated Result:</p>
                   <div className="aspect-video bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-lg flex items-center justify-center">
                     <div className="text-center text-white">
                       <svg className="w-12 h-12 mx-auto mb-2 opacity-80" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                       </svg>
-                      <p className="text-sm font-medium">Beautiful Mountain Scene</p>
+                      <p className="text-sm font-medium">AI Generated Image</p>
                     </div>
                   </div>
                 </div>

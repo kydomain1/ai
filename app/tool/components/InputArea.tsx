@@ -2,10 +2,6 @@
 
 import { useState } from 'react';
 import { generateImages, getErrorMessage, validateGenerateRequest, type GeneratedImage } from '../../lib/api-client';
-import TestConnection from './TestConnection';
-import FlowDebugger from './FlowDebugger';
-import APITokenSetup from './APITokenSetup';
-import SimpleImageTest from './SimpleImageTest';
 
 interface InputAreaProps {
   onImagesGenerated: (images: GeneratedImage[]) => void;
@@ -106,17 +102,6 @@ const InputArea = ({ onImagesGenerated }: InputAreaProps) => {
           <p className="text-gray-600">Describe what you want to create</p>
         </div>
 
-        {/* API Token Setup Guide */}
-        {error && error.includes('token not configured') && <APITokenSetup />}
-
-        {/* API Connection Test */}
-        <TestConnection />
-
-        {/* Simple Image Test */}
-        <SimpleImageTest />
-
-        {/* Flow Debugger */}
-        <FlowDebugger />
 
         {/* Prompt Input */}
         <div className="mb-6">

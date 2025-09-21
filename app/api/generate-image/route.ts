@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { uploadImagesToR2 } from '@/app/lib/r2-upload';
 
 // 类型定义
 export interface GeneratedImage {
@@ -33,36 +32,26 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
       imageSize
     });
 
-    // 生成模拟的图片 URL（使用 Lorem Picsum 作为测试图片）
+    // 生成模拟的图片 URL（使用本地备用图片）
+    const localImages = ['/images/mountain.png', '/images/nightscape.png', '/images/山景.png', '/images/夜景.png'];
     const mockImageUrls: string[] = [];
-    for (let i = 0; i < imageCount; i++) {
-      const [width, height] = imageSize.split('x').map(Number);
-      // 使用不同的随机种子确保每张图片都不同
-      const randomSeed = Date.now() + i;
-      mockImageUrls.push(`https://picsum.photos/${width}/${height}?random=${randomSeed}`);
-    }
-
-    console.log('Mock image URLs generated:', mockImageUrls);
-
-    // 上传图片到 R2
-    console.log('Uploading images to Cloudflare R2...');
-    const uploadResult = await uploadImagesToR2(mockImageUrls, `ai-generated-${Date.now()}`);
     
-    if (!uploadResult.success || !uploadResult.urls || uploadResult.urls.length === 0) {
-      console.error('R2 upload failed:', uploadResult.errors);
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: `Failed to upload images to storage: ${uploadResult.errors?.join(', ') || 'Unknown error'}` 
-        },
-        { status: 500 }
-      );
+    for (let i = 0; i < imageCount; i++) {
+      // 使用本地图片作为备用，确保图片能正常加载
+      const localImage = localImages[i % localImages.length];
+      mockImageUrls.push(localImage);
     }
 
-    // 转换为我们的格式，使用 R2 URL
-    const images: GeneratedImage[] = uploadResult.urls.map((url, index) => ({
+    console.log('Using local images for testing:', mockImageUrls);
+
+    // 暂时跳过 R2 上传，直接使用本地图片
+    // TODO: 在 R2 配置完成后重新启用上传功能
+    console.log('Skipping R2 upload for now, using local images...');
+
+    // 转换为我们的格式，使用本地图片 URL
+    const images: GeneratedImage[] = mockImageUrls.map((url, index) => ({
       id: `${Date.now()}-${index}`,
-      url: url, // 使用 R2 的公开 URL
+      url: url, // 使用本地图片 URL
       prompt: prompt,
       size: imageSize,
       createdAt: new Date().toISOString(),

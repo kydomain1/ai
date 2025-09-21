@@ -20,7 +20,7 @@ const ConsoleLogger = () => {
       }
     };
 
-    console.log = (...args: any[]) => {
+    console.log = (...args: unknown[]) => {
       const message = args.map(arg => 
         typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
       ).join(' ');
@@ -37,7 +37,7 @@ const ConsoleLogger = () => {
       originalLog(...args);
     };
 
-    console.error = (...args: any[]) => {
+    console.error = (...args: unknown[]) => {
       const message = args.map(arg => 
         typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
       ).join(' ');

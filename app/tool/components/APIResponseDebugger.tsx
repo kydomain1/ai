@@ -3,7 +3,14 @@
 import { useState } from 'react';
 
 const APIResponseDebugger = () => {
-  const [lastResponse, setLastResponse] = useState<any>(null);
+  const [lastResponse, setLastResponse] = useState<{
+    url: string;
+    status: number;
+    statusText: string;
+    data?: unknown;
+    error?: string;
+    timestamp: string;
+  } | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   // 监听API响应
@@ -19,15 +26,15 @@ const APIResponseDebugger = () => {
         try {
           const data = await clonedResponse.json();
           setLastResponse({
-            url: args[0],
+            url: String(args[0]),
             status: response.status,
             statusText: response.statusText,
             data: data,
             timestamp: new Date().toISOString()
           });
-        } catch (e) {
+        } catch {
           setLastResponse({
-            url: args[0],
+            url: String(args[0]),
             status: response.status,
             statusText: response.statusText,
             error: 'Failed to parse JSON response',
@@ -114,16 +121,16 @@ const APIResponseDebugger = () => {
               </pre>
             </div>
 
-            {lastResponse.data?.images && (
+            {(lastResponse.data as { images?: unknown[] })?.images && (
               <div>
                 <strong className="text-xs text-gray-700">Image URLs:</strong>
                 <div className="space-y-1 mt-1">
-                  {lastResponse.data.images.map((img: any, index: number) => (
+                  {(lastResponse.data as { images: unknown[] }).images.map((img: unknown, index: number) => (
                     <div key={index} className="text-xs">
                       <span className="text-gray-600">#{index + 1}:</span>
                       <br />
                       <span className="font-mono bg-yellow-100 px-1 break-all">
-                        {typeof img === 'object' ? JSON.stringify(img) : img.url || img}
+                        {typeof img === 'object' ? JSON.stringify(img) : String((img as { url?: string })?.url || img)}
                       </span>
                     </div>
                   ))}

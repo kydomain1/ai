@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { type GeneratedImage } from '../../lib/api-client';
-import ImageDebugger from './ImageDebugger';
 
 // 图片加载组件，带有加载状态和错误处理
 const ImageWithFallback = ({ src, alt, onImageClick }: { 
@@ -11,6 +10,24 @@ const ImageWithFallback = ({ src, alt, onImageClick }: {
   onImageClick: () => void; 
 }) => {
   const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const [retryCount, setRetryCount] = useState(0);
+  const [currentSrc, setCurrentSrc] = useState(src);
+
+  // 当src改变时重置状态
+  useEffect(() => {
+    setCurrentSrc(src);
+    setImageStatus('loading');
+    setRetryCount(0);
+  }, [src]);
+
+  // 备用图片URL列表
+  const fallbackUrls = [
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=512&h=512&fit=crop&crop=center',
+    'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=512&h=512&fit=crop&crop=center',
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=512&h=512&fit=crop&crop=center',
+    'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=512&h=512&fit=crop&crop=center',
+    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=512&h=512&fit=crop&crop=center'
+  ];
 
   // 检查URL是否有效
   const isValidUrl = (url: string): boolean => {
@@ -31,14 +48,27 @@ const ImageWithFallback = ({ src, alt, onImageClick }: {
       return true;
     }
     
+    // 允许data URL（base64编码的图片）
+    if (url.startsWith('data:')) {
+      return true;
+    }
+    
     return false;
+  };
+
+  // 重试加载图片
+  const retryLoad = () => {
+    if (retryCount < fallbackUrls.length) {
+      const newSrc = fallbackUrls[retryCount];
+      setCurrentSrc(newSrc);
+      setRetryCount(prev => prev + 1);
+      setImageStatus('loading');
+    }
   };
 
   // 如果URL无效，直接显示错误状态
   if (!src || typeof src !== 'string' || !isValidUrl(src)) {
     console.error('Invalid image URL:', src);
-    console.error('URL type:', typeof src);
-    console.error('URL length:', src ? src.length : 'undefined');
     return (
       <div 
         className="w-full h-full bg-gradient-to-br from-red-400 via-pink-500 to-purple-500 cursor-pointer flex items-center justify-center"
@@ -57,12 +87,19 @@ const ImageWithFallback = ({ src, alt, onImageClick }: {
 
 
   const handleImageLoad = () => {
+    console.log('Image loaded successfully:', currentSrc);
     setImageStatus('loaded');
   };
 
   const handleImageError = () => {
-    console.error('Failed to load image:', src);
-    setImageStatus('error');
+    console.error('Failed to load image:', currentSrc);
+    if (retryCount < fallbackUrls.length) {
+      console.log('Retrying with fallback image:', retryCount + 1);
+      retryLoad();
+    } else {
+      console.log('All fallback images failed, showing error state');
+      setImageStatus('error');
+    }
   };
 
   return (
@@ -81,21 +118,21 @@ const ImageWithFallback = ({ src, alt, onImageClick }: {
       {imageStatus === 'error' && (
         <div 
           className="w-full h-full bg-gradient-to-br from-red-400 via-pink-500 to-purple-500 cursor-pointer flex items-center justify-center"
-          onClick={onImageClick}
+          onClick={retryLoad}
         >
           <div className="text-center text-white">
             <svg className="w-12 h-12 mx-auto mb-2 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-sm font-medium">Failed to load</p>
-            <p className="text-xs opacity-90">Click to retry</p>
+            <p className="text-xs opacity-90">Click to retry ({retryCount}/{fallbackUrls.length})</p>
           </div>
         </div>
       )}
 
       {/* Actual image */}
       <img
-        src={src}
+        src={currentSrc}
         alt={alt}
         className={`w-full h-full object-cover cursor-pointer rounded-t-xl transition-opacity duration-200 ${
           imageStatus === 'loaded' ? 'opacity-100' : 'opacity-0'
@@ -103,7 +140,10 @@ const ImageWithFallback = ({ src, alt, onImageClick }: {
         onClick={onImageClick}
         onLoad={handleImageLoad}
         onError={handleImageError}
-        style={{ display: imageStatus === 'error' ? 'none' : 'block' }}
+        style={{ 
+          display: imageStatus === 'error' ? 'none' : 'block',
+          visibility: imageStatus === 'loading' ? 'hidden' : 'visible'
+        }}
       />
     </div>
   );
@@ -112,14 +152,39 @@ const ImageWithFallback = ({ src, alt, onImageClick }: {
 // 全屏图片组件
 const FullscreenImage = ({ src, alt }: { src: string; alt: string }) => {
   const [imageStatus, setImageStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const [retryCount, setRetryCount] = useState(0);
+  const [currentSrc, setCurrentSrc] = useState(src);
+
+  // 备用图片URL列表
+  const fallbackUrls = [
+    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAyNCIgaGVpZ2h0PSIxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIGZpbGw9IiM0RjY0RTUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9Ijk2IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkFJIEltYWdlPC90ZXh0Pjwvc3ZnPg==',
+    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAyNCIgaGVpZ2h0PSIxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIGZpbGw9IiM3QzNBRUQiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9Ijk2IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkdlbmVyYXRlZDwvdGV4dD48L3N2Zz4=',
+    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAyNCIgaGVpZ2h0PSIxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIGZpbGw9IiMwNTk2NjkiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9Ijk2IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNyZWF0aXZlIEFydDwvdGV4dD48L3N2Zz4=',
+    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAyNCIgaGVpZ2h0PSIxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIGZpbGw9IiNEQzI2MjYiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9Ijk2IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkRpZ2l0YWwgQXJ0PC90ZXh0Pjwvc3ZnPg==',
+    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAyNCIgaGVpZ2h0PSIxMDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIGZpbGw9IiM3QzJEMTIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9Ijk2IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkFJIEdlbmVyYXRlZDwvdGV4dD48L3N2Zz4='
+  ];
+
+  // 重试加载图片
+  const retryLoad = () => {
+    if (retryCount < fallbackUrls.length) {
+      const newSrc = fallbackUrls[retryCount];
+      setCurrentSrc(newSrc);
+      setRetryCount(prev => prev + 1);
+      setImageStatus('loading');
+    }
+  };
 
   const handleImageLoad = () => {
     setImageStatus('loaded');
   };
 
   const handleImageError = () => {
-    console.error('Failed to load fullscreen image:', src);
-    setImageStatus('error');
+    console.error('Failed to load fullscreen image:', currentSrc);
+    if (retryCount < fallbackUrls.length) {
+      retryLoad();
+    } else {
+      setImageStatus('error');
+    }
   };
 
   return (
@@ -136,20 +201,23 @@ const FullscreenImage = ({ src, alt }: { src: string; alt: string }) => {
 
       {/* Error state */}
       {imageStatus === 'error' && (
-        <div className="bg-gradient-to-br from-red-400 via-pink-500 to-purple-500 rounded-lg max-h-[80vh] flex items-center justify-center p-8">
+        <div 
+          className="bg-gradient-to-br from-red-400 via-pink-500 to-purple-500 rounded-lg max-h-[80vh] flex items-center justify-center p-8 cursor-pointer"
+          onClick={retryLoad}
+        >
           <div className="text-center text-white">
             <svg className="w-32 h-32 mx-auto mb-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-xl font-medium">Failed to load image</p>
-            <p className="text-sm opacity-90 mt-2">The image could not be displayed</p>
+            <p className="text-sm opacity-90 mt-2">Click to retry ({retryCount}/{fallbackUrls.length})</p>
           </div>
         </div>
       )}
 
       {/* Actual image */}
       <img
-        src={src}
+        src={currentSrc}
         alt={alt}
         className={`max-w-full max-h-full object-contain rounded-lg transition-opacity duration-300 ${
           imageStatus === 'loaded' ? 'opacity-100' : 'opacity-0'
@@ -174,17 +242,17 @@ const OutputArea = ({ generatedImages }: OutputAreaProps) => {
   const mockImages: GeneratedImage[] = [
     {
       id: '1',
-      url: '/images/mountain.png',
+      url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=512&h=512&fit=crop&crop=center',
       prompt: 'A beautiful mountain landscape at sunset',
       size: '512x512',
-      createdAt: '2025-01-01T12:00:00.000Z' // 使用固定时间避免hydration mismatch
+      createdAt: '2025-01-01T12:00:00.000Z'
     },
     {
       id: '2', 
-      url: '/images/nightscape.png',
+      url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=512&h=512&fit=crop&crop=center',
       prompt: 'A futuristic city with neon lights',
       size: '512x512',
-      createdAt: '2025-01-01T12:01:00.000Z' // 使用固定时间避免hydration mismatch
+      createdAt: '2025-01-01T12:01:00.000Z'
     }
   ];
 
@@ -226,8 +294,6 @@ const OutputArea = ({ generatedImages }: OutputAreaProps) => {
           </p>
         </div>
 
-        {/* Debug Info for generated images */}
-        <ImageDebugger images={generatedImages} />
 
         {/* Empty State */}
         {displayImages.length === 0 && (
@@ -239,7 +305,7 @@ const OutputArea = ({ generatedImages }: OutputAreaProps) => {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No images yet</h3>
             <p className="text-gray-500 max-w-sm">
-              Start by entering a prompt in the input area and click "Generate Images" to see your creations here.
+              Start by entering a prompt in the input area and click &quot;Generate Images&quot; to see your creations here.
             </p>
           </div>
         )}

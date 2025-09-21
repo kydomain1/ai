@@ -4,11 +4,11 @@ const Footer = () => {
 
   const footerLinks = {
     product: [
-      { name: "Features", href: "#features" },
-      { name: "How it Works", href: "#how-to" },
-      { name: "Pricing", href: "#pricing" },
-      { name: "API", href: "#api" },
-      { name: "Examples", href: "#examples" }
+      { name: "AI Image Generation Features", href: "#features" },
+      { name: "AI Image Generation Guide", href: "#how-to" },
+      { name: "AI Image Generation Pricing", href: "#pricing" },
+      { name: "AI Image Generation API", href: "#api" },
+      { name: "AI Image Generation Examples", href: "#examples" }
     ],
     company: [
       { name: "About Us", href: "#about" },
@@ -18,11 +18,11 @@ const Footer = () => {
       { name: "Contact", href: "#contact" }
     ],
     support: [
-      { name: "Help Center", href: "#help" },
-      { name: "FAQ", href: "#faq" },
-      { name: "Community", href: "#community" },
-      { name: "Status", href: "#status" },
-      { name: "Tutorials", href: "#tutorials" }
+      { name: "AI Image Generation Help", href: "#help" },
+      { name: "AI Image Generation FAQ", href: "#faq" },
+      { name: "AI Image Generation Community", href: "#community" },
+      { name: "AI Image Generation Status", href: "#status" },
+      { name: "AI Image Generation Tutorials", href: "#tutorials" }
     ],
     legal: [
       { name: "Privacy Policy", href: "#privacy" },
@@ -84,8 +84,7 @@ const Footer = () => {
                 AI<span className="text-blue-400">Image</span>
               </h3>
               <p className="mt-4 text-gray-300 leading-relaxed">
-                Transform your creativity with cutting-edge AI technology. 
-                Create stunning, professional-quality images from simple text descriptions.
+                Professional AI Image Generation platform. Create stunning visuals with our advanced AI Image Generation technology. Transform ideas into reality with AI Image Generation.
               </p>
             </div>
             
@@ -177,9 +176,9 @@ const Footer = () => {
         <div className="mt-16 pt-8 border-t border-gray-800">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h4 className="text-xl font-semibold mb-2">Stay Updated</h4>
+              <h4 className="text-xl font-semibold mb-2">AI Image Generation Updates</h4>
               <p className="text-gray-300">
-                Get the latest updates on new features, tutorials, and AI developments.
+                Get latest AI Image Generation features and tutorials. Stay updated with AI Image Generation news.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -199,13 +198,13 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © {currentYear} AIImage. All rights reserved.
+              © {currentYear} AI Image Generation Platform. All rights reserved.
             </p>
             <div className="flex items-center space-x-6 mt-4 md:mt-0">
-              <span className="text-gray-400 text-sm">Made with ❤️ for creators</span>
+              <span className="text-gray-400 text-sm">AI Image Generation for creators</span>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-gray-400 text-sm">All systems operational</span>
+                <span className="text-gray-400 text-sm">AI Image Generation operational</span>
               </div>
             </div>
           </div>

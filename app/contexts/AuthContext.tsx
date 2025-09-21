@@ -168,11 +168,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // 监听认证状态变化
     const { data: { subscription } } = auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
+      setUser((session?.user as SupabaseUser) ?? null);
       
       if (session?.user) {
         // 确保用户存在，如果不存在则创建
-        const profile = await ensureUserExists(session.user);
+        const profile = await ensureUserExists(session.user as SupabaseUser);
         setUserProfile(profile);
       } else {
         setUserProfile(null);

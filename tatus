@@ -1,0 +1,5 @@
+[33m42e33cf[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: 集成 Cloudflare R2 图片存储和修复 URL 重复问题
+[33m49f7713[m feat: 添加 Google 登录功能和 Supabase 集成
+[33me17c970[m Fix Replicate API aspect_ratio and ReadableStream issues
+[33m5fa729a[m Fix Replicate API ReadableStream issue and enhance error handling
+[33m5ce8dfd[m Fix [object Object] URL issue and hydration errors

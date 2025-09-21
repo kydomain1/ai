@@ -45,7 +45,7 @@ export const auth = {
   },
 
   // 监听认证状态变化
-  onAuthStateChange: (callback: (event: string, session: unknown) => void) => {
+  onAuthStateChange: (callback: (event: string, session: { user: unknown } | null) => void) => {
     return supabase.auth.onAuthStateChange(callback);
   },
 };

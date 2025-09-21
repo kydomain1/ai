@@ -1,4 +1,5 @@
-'use client';
+
+"use client";
 
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
@@ -40,7 +41,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <h1 className="text-2xl font-bold text-gray-900">
-              AI<span className="text-blue-600">Image</span>
+              AI<span className="text-blue-600">Image</span> Generation
             </h1>
           </div>
 
@@ -50,31 +51,31 @@ const Header = () => {
               href="#what-is"
               className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
             >
-              What is AI Image
+              AI Image Generation Tools
             </a>
             <a
               href="#why"
               className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
             >
-              Why Choose Us
+              AI Image Generation Benefits
             </a>
             <a
               href="#features"
               className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
             >
-              Features
+              AI Image Generation Features
             </a>
             <a
               href="#how-to"
               className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
             >
-              How to Use
+              AI Image Generation Guide
             </a>
             <a
               href="#faq"
               className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
             >
-              FAQ
+              AI Image Generation FAQ
             </a>
           </nav>
 
@@ -84,16 +85,16 @@ const Header = () => {
               href="/tool"
               className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200"
             >
-              Get Started
+              Start AI Image Generation
             </a>
             
             {/* 认证按钮 */}
             {loading ? (
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
             ) : user ? (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 {/* 用户信息 */}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   {userProfile?.avatar_url ? (
                     <img
                       src={userProfile.avatar_url}
@@ -107,8 +108,8 @@ const Header = () => {
                       </span>
                     </div>
                   )}
-                  <div className="text-sm">
-                    <p className="font-medium text-gray-900">
+                  <div className="text-sm min-w-0">
+                    <p className="font-medium text-gray-900 truncate max-w-32">
                       {userProfile?.email || user.email}
                     </p>
                     <p className="text-gray-500">
@@ -120,7 +121,7 @@ const Header = () => {
                 {/* 登出按钮 */}
                 <button
                   onClick={handleSignOut}
-                  className="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
+                  className="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium transition-colors duration-200 whitespace-nowrap"
                 >
                   Sign Out
                 </button>
@@ -196,37 +197,37 @@ const Header = () => {
                 href="#what-is"
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
               >
-                What is AI Image
+                AI Image Generation Tools
               </a>
               <a
                 href="#why"
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
               >
-                Why Choose Us
+                AI Image Generation Benefits
               </a>
               <a
                 href="#features"
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
               >
-                Features
+                AI Image Generation Features
               </a>
               <a
                 href="#how-to"
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
               >
-                How to Use
+                AI Image Generation Guide
               </a>
               <a
                 href="#faq"
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
               >
-                FAQ
+                AI Image Generation FAQ
               </a>
               <a
                 href="/tool"
                 className="block w-full mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 text-center"
               >
-                Get Started
+                Start AI Image Generation
               </a>
               
               {/* 移动端认证按钮 */}

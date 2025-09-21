@@ -2,8 +2,8 @@ const HowTo = () => {
   const steps = [
     {
       number: "01",
-      title: "Describe Your Vision",
-      description: "Type a detailed description of the image you want to create. Be as specific or creative as you like.",
+      title: "Craft Your AI Image Generation Prompt",
+      description: "Create detailed prompts for AI Image Generation. Be specific about style, composition, and mood to get the best results from our AI Image Generation technology.",
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -13,8 +13,8 @@ const HowTo = () => {
     },
     {
       number: "02",
-      title: "Choose Your Style",
-      description: "Select from various artistic styles including photorealistic, cartoon, oil painting, or let AI decide.",
+      title: "Select AI Image Generation Style",
+      description: "Choose from our AI Image Generation styles including photorealistic, digital art, oil painting, or let our AI Image Generation algorithm decide the best approach.",
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
@@ -24,19 +24,19 @@ const HowTo = () => {
     },
     {
       number: "03",
-      title: "Generate & Refine",
-      description: "Click generate and watch your idea come to life. Use our editing tools to perfect the result.",
+      title: "Execute AI Image Generation",
+      description: "Start the AI Image Generation process and watch your vision come to life. Use our advanced editing tools to refine your AI Image Generation results.",
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
       ),
-      example: "Generation takes 5-15 seconds • Multiple variations available • Real-time editing"
+      example: "AI Image Generation takes 5-15 seconds • Multiple variations available • Real-time editing"
     },
     {
       number: "04",
-      title: "Download & Use",
-      description: "Download your high-resolution image in multiple formats. Use for any purpose with full commercial rights.",
+      title: "Download AI Image Generation Results",
+      description: "Download your high-resolution AI Image Generation output in multiple formats. Use your AI Image Generation creations for any purpose with full commercial rights.",
       icon: (
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -51,11 +51,11 @@ const HowTo = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-            How to Create Amazing Images
+            How to Master AI Image Generation
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Follow these simple steps to transform your ideas into stunning visual content. 
-            The entire process takes less than a minute!
+            Master AI Image Generation with our step-by-step guide. Transform your creative ideas into professional visuals using advanced AI technology. 
+            The entire AI Image Generation process takes less than a minute!
           </p>
         </div>
 
@@ -151,18 +151,18 @@ const HowTo = () => {
         <div className="mt-20 text-center">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-white">
             <h3 className="text-3xl font-bold mb-6">
-              Ready to Create Your First AI Image?
+              Ready to Master AI Image Generation?
             </h3>
             <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-              Join millions of creators who are already using AI to bring their ideas to life. 
-              Start your creative journey today!
+              Join millions of creators using AI Image Generation technology to bring their ideas to life. 
+              Start your AI Image Generation journey today!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-white text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-lg">
-                Start Creating Free
+                Start AI Image Generation
               </button>
               <button className="border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-200 transform hover:scale-105">
-                Watch Demo Video
+                Watch AI Image Generation Demo
               </button>
             </div>
           </div>
