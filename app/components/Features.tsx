@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 const Features = () => {
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
@@ -104,16 +105,12 @@ const Features = () => {
               <div className="h-48 relative overflow-hidden">
                 {/* Background Image or Fallback */}
                 {!imageErrors[index] ? (
-                  <img 
+                  <Image 
                     src={feature.image} 
                     alt={feature.title}
+                    width={400}
+                    height={192}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    style={{ 
-                      width: '100%', 
-                      height: '100%', 
-                      objectFit: 'cover',
-                      display: 'block'
-                    }}
                     onLoad={() => handleImageLoad(index)}
                     onError={() => handleImageError(index)}
                   />

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useAuth } from '../contexts/AuthContext';
 
 const Header = () => {
@@ -102,9 +103,11 @@ const Header = () => {
                 {/* 用户信息 */}
                 <div className="flex items-center space-x-3">
                   {userProfile?.avatar_url ? (
-                    <img
+                    <Image
                       src={userProfile.avatar_url}
                       alt="用户头像"
+                      width={32}
+                      height={32}
                       className="h-8 w-8 rounded-full"
                     />
                   ) : (
@@ -246,9 +249,11 @@ const Header = () => {
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
                       {userProfile?.avatar_url ? (
-                        <img
+                        <Image
                           src={userProfile.avatar_url}
                           alt="用户头像"
+                          width={40}
+                          height={40}
                           className="h-10 w-10 rounded-full"
                         />
                       ) : (

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { generateImages, type GeneratedImage } from '../../lib/api-client';
 
 export default function SimpleImageGenerator() {
@@ -174,7 +175,7 @@ export default function SimpleImageGenerator() {
               <h3 className="text-sm font-medium text-blue-900 mb-2">Usage Tips</h3>
               <ul className="text-sm text-blue-700 space-y-1">
                 <li>• Be specific in your description, include colors, style, and scene details</li>
-                <li>• Try different art styles like "oil painting style", "watercolor", etc.</li>
+                <li>• Try different art styles like &quot;oil painting style&quot;, &quot;watercolor&quot;, etc.</li>
                 <li>• Supports both English and Chinese descriptions</li>
                 <li>• Each generation creates a new unique image</li>
               </ul>
@@ -201,16 +202,18 @@ export default function SimpleImageGenerator() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No images yet</h3>
-                  <p className="text-gray-500">Enter a description and click "Generate Image" to start creating</p>
+                  <p className="text-gray-500">Enter a description and click &quot;Generate Image&quot; to start creating</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {images.map((image, index) => (
+                  {images.map((image) => (
                     <div key={image.id} className="border border-gray-200 rounded-lg overflow-hidden">
                       <div className="bg-gray-100 relative">
-                        <img
+                        <Image
                           src={image.url}
                           alt={image.prompt}
+                          width={800}
+                          height={600}
                           className="w-full h-auto max-h-96 object-contain"
                           onError={(e) => {
                             console.error('图片加载失败:', image.url);
