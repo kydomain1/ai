@@ -27,11 +27,15 @@ export default function SimpleImageGenerator() {
     setError(null);
 
     try {
+      console.log('开始生成图片:', { prompt: prompt.trim(), imageSize });
+      
       const newImages = await generateImages({
         prompt: prompt.trim(),
         imageCount: 1,
         imageSize: imageSize
       });
+
+      console.log('图片生成成功:', newImages);
 
       // 将新图片添加到列表开头
       setImages(prev => [...newImages, ...prev]);
@@ -167,6 +171,23 @@ export default function SimpleImageGenerator() {
                     </div>
                   </div>
                 )}
+
+                {/* 调试信息 */}
+                <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">调试信息</h4>
+                  <div className="text-xs text-gray-600 space-y-1">
+                    <p>图片数量: {images.length}</p>
+                    <p>当前提示词: {prompt || '无'}</p>
+                    <p>图片尺寸: {imageSize}</p>
+                    <p>生成状态: {isGenerating ? '生成中...' : '空闲'}</p>
+                    {images.length > 0 && (
+                      <div>
+                        <p>最新图片URL: {images[0]?.url}</p>
+                        <p>最新图片ID: {images[0]?.id}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -215,8 +236,15 @@ export default function SimpleImageGenerator() {
                           width={800}
                           height={600}
                           className="w-full h-auto max-h-96 object-contain"
+                          onLoad={() => {
+                            console.log('图片加载成功:', image.url);
+                          }}
                           onError={(e) => {
-                            console.error('图片加载失败:', image.url);
+                            console.error('图片加载失败:', {
+                              url: image.url,
+                              id: image.id,
+                              prompt: image.prompt
+                            });
                             e.currentTarget.style.display = 'none';
                           }}
                         />
