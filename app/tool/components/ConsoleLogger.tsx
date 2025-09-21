@@ -5,10 +5,14 @@ import { useState, useEffect, useRef } from 'react';
 const ConsoleLogger = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [isVisible, setIsVisible] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const pendingLogs = useRef<string[]>([]);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // 设置客户端标志
+    setIsClient(true);
+    
     // 重写console.log和console.error来捕获日志
     const originalLog = console.log;
     const originalError = console.error;
@@ -66,6 +70,11 @@ const ConsoleLogger = () => {
   const clearLogs = () => {
     setLogs([]);
   };
+
+  // 避免hydration mismatch，只在客户端渲染
+  if (!isClient) {
+    return null;
+  }
 
   if (!isVisible) {
     return (

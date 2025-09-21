@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testAPI()">Test Generate Image</button>
+    <div id="result"></div>
+    <div id="images"></div>
+
+    <script>
+        async function testAPI() {
+            try {
+                const response = await fetch('http://localhost:3000/api/generate-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: 'a beautiful sunset',
+                        imageCount: 2,
+                        imageSize: '512x512'
+                    })
+                });
+
+                const data = await response.json();
+                console.log('API Response:', data);
+                
+                document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                if (data.success && data.images) {
+                    const imagesDiv = document.getElementById('images');
+                    imagesDiv.innerHTML = '';
+                    
+                    data.images.forEach((image, index) => {
+                        const img = document.createElement('img');
+                        img.src = image.url;
+                        img.style.width = '200px';
+                        img.style.height = '200px';
+                        img.style.margin = '10px';
+                        img.style.border = '1px solid #ccc';
+                        img.onerror = function() {
+                            console.error('Image failed to load:', image.url);
+                            this.style.border = '2px solid red';
+                            this.alt = 'Failed to load: ' + image.url;
+                        };
+                        img.onload = function() {
+                            console.log('Image loaded successfully:', image.url);
+                        };
+                        imagesDiv.appendChild(img);
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

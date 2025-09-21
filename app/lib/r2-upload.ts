@@ -19,7 +19,7 @@ export interface R2UploadResult {
 }
 
 /**
- * 从 URL 下载图片并上传到 R2
+ * 从 URL 或 base64 data URL 上传图片到 R2
  */
 export async function uploadImageToR2(
   imageUrl: string,
@@ -34,17 +34,36 @@ export async function uploadImageToR2(
       };
     }
 
-    // 从 URL 下载图片
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      return {
-        success: false,
-        error: `Failed to download image: ${response.statusText}`
-      };
-    }
+    let imageBuffer: ArrayBuffer;
+    let contentType: string;
 
-    const imageBuffer = await response.arrayBuffer();
-    const contentType = response.headers.get('content-type') || 'image/webp';
+    // 检查是否是base64 data URL
+    if (imageUrl.startsWith('data:')) {
+      // 处理base64 data URL
+      const [header, base64Data] = imageUrl.split(',');
+      const mimeMatch = header.match(/data:([^;]+)/);
+      contentType = mimeMatch ? mimeMatch[1] : 'image/png';
+      
+      // 将base64转换为ArrayBuffer
+      const binaryString = atob(base64Data);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      imageBuffer = bytes.buffer;
+    } else {
+      // 从 URL 下载图片
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        return {
+          success: false,
+          error: `Failed to download image: ${response.statusText}`
+        };
+      }
+
+      imageBuffer = await response.arrayBuffer();
+      contentType = response.headers.get('content-type') || 'image/png';
+    }
 
     // 生成唯一的文件名
     const randomId = Math.random().toString(36).substring(2, 15);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const APIResponseDebugger = () => {
   const [lastResponse, setLastResponse] = useState<{
@@ -12,6 +12,7 @@ const APIResponseDebugger = () => {
     timestamp: string;
   } | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   // 监听API响应
   const interceptFetch = () => {
@@ -52,12 +53,18 @@ const APIResponseDebugger = () => {
   };
 
   // 在组件挂载时设置拦截
-  useState(() => {
+  useEffect(() => {
     if (typeof window !== 'undefined') {
+      setIsClient(true);
       const cleanup = interceptFetch();
       return cleanup;
     }
-  });
+  }, []);
+
+  // 避免hydration mismatch，只在客户端渲染
+  if (!isClient) {
+    return null;
+  }
 
   if (!isVisible) {
     return (

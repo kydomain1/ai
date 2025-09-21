@@ -1,19 +1,30 @@
-# R2 存储配置指南
+# 环境变量配置指南
 
-## 环境变量配置
+## 创建环境变量文件
 
-在项目根目录创建 `.env.local` 文件，并添加以下环境变量：
+在项目根目录创建 `.env.local` 文件，并添加以下配置：
 
 ```bash
+# Supabase 配置
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+
+# Hugging Face API 配置
+HUGGINGFACE_API_KEY=your-huggingface-api-key
+
 # R2 存储配置
 R2_ENDPOINT_URL=https://your-account-id.r2.cloudflarestorage.com
 R2_ACCESS_KEY_ID=your-access-key-id
 R2_SECRET_ACCESS_KEY=your-secret-access-key
 R2_BUCKET_NAME=your-bucket-name
 R2_PUBLIC_URL=https://your-public-domain.com
+
+# 其他配置
+NODE_ENV=development
 ```
 
-## 获取 R2 配置信息
+## R2 配置获取方法
 
 ### 1. 登录 Cloudflare Dashboard
 访问 [Cloudflare Dashboard](https://dash.cloudflare.com/)
@@ -46,13 +57,44 @@ R2_PUBLIC_URL=https://your-public-domain.com
 3. 复制 "Account ID" 和 "S3 API" 信息
 4. Endpoint URL 格式：`https://[account-id].r2.cloudflarestorage.com`
 
-### 6. 设置公开访问（可选）
+### 6. 设置公开访问
 1. 在存储桶设置中，找到 "Public access"
 2. 启用 "Allow Access"
 3. 设置自定义域名（可选）或使用默认的 R2.dev 域名
 4. 如果使用自定义域名，在 `R2_PUBLIC_URL` 中填入你的域名
 
 ## 验证配置
+
+配置完成后，运行以下命令验证：
+
+```bash
+node test-r2-config.js
+```
+
+如果配置正确，您应该看到：
+- ✅ 所有环境变量都已设置
+- ✅ R2 连接成功
+- ✅ 目标存储桶存在
+
+## 故障排除
+
+### 常见问题
+
+1. **环境变量未加载**
+   - 确保文件名为 `.env.local`（不是 `.env`）
+   - 确保文件在项目根目录
+   - 重启开发服务器
+
+2. **R2 连接失败**
+   - 检查 API 密钥是否正确
+   - 确认存储桶名称正确
+   - 验证 Endpoint URL 格式
+
+3. **权限错误**
+   - 确保 API 密钥有正确的权限
+   - 检查存储桶的公开访问设置
+
+## 下一步
 
 配置完成后，重启开发服务器：
 
@@ -61,36 +103,3 @@ npm run dev
 ```
 
 然后测试图片生成功能，检查控制台日志确认图片是否成功上传到 R2。
-
-## 故障排除
-
-### 常见问题
-
-1. **403 Forbidden 错误**
-   - 检查 API 密钥是否正确
-   - 确认 API 密钥有正确的权限
-
-2. **404 Not Found 错误**
-   - 检查存储桶名称是否正确
-   - 确认存储桶存在且可访问
-
-3. **图片无法显示**
-   - 检查 `R2_PUBLIC_URL` 配置
-   - 确认存储桶的公开访问设置
-
-4. **上传失败**
-   - 检查网络连接
-   - 查看控制台错误日志
-   - 确认环境变量格式正确
-
-### 调试模式
-
-在 `.env.local` 中添加调试信息：
-
-```bash
-# 调试模式
-NODE_ENV=development
-DEBUG_R2=true
-```
-
-这将启用详细的 R2 上传日志。

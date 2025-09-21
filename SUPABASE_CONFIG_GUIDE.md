@@ -123,7 +123,7 @@ CREATE OR REPLACE TRIGGER handle_users_updated_at
 
 2. 访问 http://localhost:3000 或 http://localhost:3001
 
-3. 点击 Header 右侧的 "Google 登录" 按钮
+3. 点击 Header 右侧的 "Sign in with Google" 按钮
 
 4. 如果配置正确，应该会跳转到 Google 登录页面
 
@@ -162,7 +162,7 @@ npm run dev
 ## 完成！
 
 配置完成后，你的应用将具备：
-- ✅ Google 登录功能
+- ✅ Google Sign-in 功能
 - ✅ 用户数据存储
 - ✅ 积分系统
 - ✅ 安全的用户认证
