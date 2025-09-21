@@ -184,8 +184,13 @@ export default function SimpleImageGenerator() {
                       <div>
                         <p>最新图片URL: {images[0]?.url}</p>
                         <p>最新图片ID: {images[0]?.id}</p>
+                        <p>URL类型: {images[0]?.url.startsWith('data:') ? 'Base64' : 'R2存储'}</p>
                       </div>
                     )}
+                    <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded">
+                      <p className="text-yellow-700 font-medium">💡 提示</p>
+                      <p className="text-yellow-600">如果图片不显示，请检查控制台日志查看详细错误信息</p>
+                    </div>
                   </div>
                 </div>
               </div>

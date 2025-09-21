@@ -76,14 +76,40 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
           const uploadResult = await uploadImageToR2(dataUrl, fileName);
           
           if (uploadResult.success && uploadResult.url) {
-            images.push({
-              id: `${Date.now()}-${i}`,
-              url: uploadResult.url, // 使用R2的公开URL
-              prompt: prompt,
-              size: imageSize,
-              createdAt: new Date().toISOString(),
-            });
-            console.log(`Successfully uploaded image ${i + 1} to R2: ${uploadResult.url}`);
+            // 测试R2 URL是否可访问
+            try {
+              const testResponse = await fetch(uploadResult.url, { method: 'HEAD' });
+              if (testResponse.ok) {
+                images.push({
+                  id: `${Date.now()}-${i}`,
+                  url: uploadResult.url, // 使用R2的公开URL
+                  prompt: prompt,
+                  size: imageSize,
+                  createdAt: new Date().toISOString(),
+                });
+                console.log(`Successfully uploaded and verified image ${i + 1} to R2: ${uploadResult.url}`);
+              } else {
+                console.warn(`R2 URL not accessible (${testResponse.status}), falling back to base64: ${uploadResult.url}`);
+                // R2 URL不可访问，回退到base64
+                images.push({
+                  id: `${Date.now()}-${i}`,
+                  url: dataUrl,
+                  prompt: prompt,
+                  size: imageSize,
+                  createdAt: new Date().toISOString(),
+                });
+              }
+            } catch (testError) {
+              console.warn(`R2 URL test failed, falling back to base64:`, testError);
+              // R2 URL测试失败，回退到base64
+              images.push({
+                id: `${Date.now()}-${i}`,
+                url: dataUrl,
+                prompt: prompt,
+                size: imageSize,
+                createdAt: new Date().toISOString(),
+              });
+            }
           } else {
             console.error(`Failed to upload image ${i + 1} to R2:`, uploadResult.error);
             // 如果R2上传失败，回退到base64 data URL
