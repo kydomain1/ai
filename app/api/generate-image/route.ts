@@ -106,8 +106,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
 
       } catch (hfError) {
         console.error('Hugging Face API failed, falling back to local images:', {
-          error: hfError.message,
-          stack: hfError.stack,
+          error: hfError instanceof Error ? hfError.message : String(hfError),
+          stack: hfError instanceof Error ? hfError.stack : undefined,
           prompt: prompt
         });
         // 继续执行本地图片逻辑
