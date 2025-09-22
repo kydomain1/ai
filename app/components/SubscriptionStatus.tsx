@@ -1,32 +1,31 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 
 interface Subscription {
   id: string;
-  plan_type: string;
-  billing_period: string;
   status: string;
+  plan_name: string;
+  billing_period: 'monthly' | 'annual';
   current_period_end: string;
-  created_at: string;
 }
 
 const SubscriptionStatus = () => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
     const fetchSubscription = async () => {
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+
         const { data, error } = await supabase
           .from('subscriptions')
           .select('*')
@@ -34,11 +33,16 @@ const SubscriptionStatus = () => {
           .eq('status', 'active')
           .single();
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-          throw error;
+        if (error) {
+          if (error.code === 'PGRST116') {
+            // No subscription found
+            setSubscription(null);
+          } else {
+            throw error;
+          }
+        } else {
+          setSubscription(data);
         }
-
-        setSubscription(data);
       } catch (err) {
         console.error('Error fetching subscription:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch subscription information');
@@ -48,13 +52,13 @@ const SubscriptionStatus = () => {
     };
 
     fetchSubscription();
-  }, [user]);
+  }, []);
 
   if (loading) {
     return (
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
         <div className="flex items-center">
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-3"></div>
           <span className="text-blue-700">Loading subscription information...</span>
         </div>
       </div>
@@ -63,10 +67,10 @@ const SubscriptionStatus = () => {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
         <div className="flex items-center">
-          <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          <svg className="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span className="text-red-700">Failed to load subscription information: {error}</span>
         </div>
@@ -78,39 +82,28 @@ const SubscriptionStatus = () => {
     return null; // No active subscription, don't display anything
   }
 
-  const planName = subscription.plan_type.charAt(0).toUpperCase() + subscription.plan_type.slice(1);
   const periodName = subscription.billing_period === 'annual' ? 'Annual' : 'Monthly';
   const endDate = new Date(subscription.current_period_end).toLocaleDateString('en-US');
   const isExpiringSoon = new Date(subscription.current_period_end).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000; // Expires within 7 days
 
   return (
-    <div className={`border rounded-lg p-4 ${
-      isExpiringSoon 
-        ? 'bg-yellow-50 border-yellow-200' 
-        : 'bg-green-50 border-green-200'
-    }`}>
+    <div className={`border rounded-lg p-4 mb-6 ${isExpiringSoon ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center">
-          <svg className={`w-5 h-5 mr-2 ${
-            isExpiringSoon ? 'text-yellow-600' : 'text-green-600'
-          }`} fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          <svg className={`w-5 h-5 mr-3 ${isExpiringSoon ? 'text-yellow-500' : 'text-green-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <h3 className={`font-medium ${
-              isExpiringSoon ? 'text-yellow-800' : 'text-green-800'
-            }`}>
-              Current Subscription: {planName} {periodName} Plan
-            </h3>
-            <p className={`text-sm ${
-              isExpiringSoon ? 'text-yellow-600' : 'text-green-600'
-            }`}>
+            <p className={`font-medium ${isExpiringSoon ? 'text-yellow-800' : 'text-green-800'}`}>
+              Current Subscription: {subscription.plan_name} {periodName} Plan
+            </p>
+            <p className={`text-sm ${isExpiringSoon ? 'text-yellow-700' : 'text-green-700'}`}>
               {isExpiringSoon ? 'Expires Soon' : 'Subscription Status'}: {endDate}
             </p>
           </div>
         </div>
         {isExpiringSoon && (
-          <span className="px-2 py-1 text-xs font-medium text-yellow-800 bg-yellow-200 rounded-full">
+          <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
             Expires Soon
           </span>
         )}

@@ -1,10 +1,9 @@
-// 简单的API测试脚本
 const http = require('http');
 
 const postData = JSON.stringify({
-  prompt: 'a beautiful sunset over mountains, digital art',
+  prompt: "a beautiful sunset over mountains, digital art",
   imageCount: 1,
-  imageSize: '512x512'
+  imageSize: "512x512"
 });
 
 const options = {
@@ -18,20 +17,17 @@ const options = {
   }
 };
 
-console.log('🧪 Starting Replicate API test...');
-console.log('📡 Sending request to:', `http://${options.hostname}:${options.port}${options.path}`);
-console.log('📝 Request data:', postData);
+console.log('🧪 Starting Hugging Face API test...');
 
 const req = http.request(options, (res) => {
   console.log('📊 Response status code:', res.statusCode);
   console.log('📋 Response headers:', res.headers);
-  
+
   let data = '';
-  
   res.on('data', (chunk) => {
     data += chunk;
   });
-  
+
   res.on('end', () => {
     console.log('📄 Response data:');
     try {
