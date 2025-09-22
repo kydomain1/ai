@@ -147,10 +147,10 @@ const Features = () => {
                     }}
                   >
                     <div className="text-center text-white">
-                      <div className="w-16 h-16 mx-auto bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4 shadow-lg">
-                        {feature.icon}
+                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 shadow-lg">
+                        <p className="text-lg font-semibold">AI Generated</p>
+                        <p className="text-sm opacity-90">{feature.title}</p>
                       </div>
-                      <p className="text-sm font-medium">AI Generated</p>
                     </div>
                   </div>
                 )}
@@ -158,18 +158,13 @@ const Features = () => {
                 {/* Subtle overlay for better text readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent group-hover:from-black/10 transition-all duration-300"></div>
                 
-                {/* Content */}
+                {/* Content - 移除图标，只保留简洁的标题 */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="relative z-10 text-center">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 mb-4 inline-block shadow-lg group-hover:bg-white group-hover:shadow-xl transition-all duration-300">
-                      <div className="text-gray-700 group-hover:text-blue-600 transition-colors duration-300">
-                        {feature.icon}
-                      </div>
-                    </div>
-                    <div className="w-20 h-20 mx-auto bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg group-hover:bg-white group-hover:shadow-xl transition-all duration-300">
-                      <svg className="w-10 h-10 text-gray-700 group-hover:text-blue-600 transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                      </svg>
+                    <div className="bg-white/90 backdrop-blur-sm rounded-lg px-6 py-3 shadow-lg group-hover:bg-white group-hover:shadow-xl transition-all duration-300">
+                      <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
+                        {feature.title}
+                      </h3>
                     </div>
                   </div>
                 </div>
