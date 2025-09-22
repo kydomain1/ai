@@ -105,7 +105,7 @@ const APITokenSetup = () => {
             </a>
             
             <a
-              href="/API_SETUP.md"
+              href="https://github.com/kydomain1/ai/blob/main/API_SETUP.md"
               target="_blank"
               className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md text-sm font-medium hover:bg-gray-700 transition-colors"
             >
