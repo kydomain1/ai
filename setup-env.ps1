@@ -1,30 +1,32 @@
-# 创建 .env.local 文件
+# Create .env.local file
 $envContent = @"
-# Supabase 配置
-NEXT_PUBLIC_SUPABASE_URL=https://auuxaapaoquncipgswxb.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1dXhhYXBhb3F1bmNpcGdzd3hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMzIxMzksImV4cCI6MjA3MzkwODEzOX0.vjGYw9ly5fbmwzF-KR2FckQ_8ER2Qadz3hP5E32wCww
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
-# Replicate API 配置
-REPLICATE_API_TOKEN=r8_RnVZsmRWAFK0U4xohytTHhXsJ3rewn63Blxyg
+# Replicate API Configuration
+REPLICATE_API_TOKEN=your_replicate_api_token_here
 
-# 应用配置
+# Application Configuration
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# Cloudflare R2 配置
-R2_ENDPOINT_URL=https://a86b7f2b20d627f1735a95fb923660d2.r2.cloudflarestorage.com
-R2_ACCESS_KEY_ID=4fa67c0ad13984a139ebde686e2073cc
-R2_SECRET_ACCESS_KEY=157f4a77a405e999852f9ca8e805d7a86db8408bb6fb7950c4b5cac163cae10f
-R2_BUCKET_NAME=z-ai
+# Cloudflare R2 Configuration
+R2_ENDPOINT_URL=your_r2_endpoint_url_here
+R2_ACCESS_KEY_ID=your_r2_access_key_id_here
+R2_SECRET_ACCESS_KEY=your_r2_secret_access_key_here
+R2_BUCKET_NAME=your_r2_bucket_name_here
 
-HUGGINGFACE_API_KEY=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
+# Hugging Face API Configuration
+HUGGINGFACE_API_KEY=your_huggingface_api_key_here
+
 # Stripe Price IDs
-STRIPE_PRICE_BASIC_ID=price_1S9zOmQBkbqoIMjENokJHAKV
-STRIPE_PRICE_PRO_ID=price_1S9zRtQBkbqoIMjE9HHQhu5k
+STRIPE_PRICE_BASIC_ID=your_stripe_basic_price_id_here
+STRIPE_PRICE_PRO_ID=your_stripe_pro_price_id_here
 
-# Stripe 密钥配置
-STRIPE_SECRET_KEY=sk_test_51S9fG0QBkbqoIMjEexI7SUsKb8Zn7VzxyBqMTJekx8UQOfkRMJWYdcKmRrHSmPzIJ1x103azRK9kA4DvAfomgfC1009TkGxzHO
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_51S9fG0QBkbqoIMjE8qgacZwxiHNvdl6wmruTx5KXLNX9jC38HyCI7EfWD7giUTtMhtVYQoFcgJ9SsapLA7TYZQbe00tWV4BYd2
-STRIPE_WEBHOOK_SECRET=whsec_384697637135566f25f574c456d154965c8bbc16d71d1113179fbaefcf778e78
+# Stripe Secret Configuration
+STRIPE_SECRET_KEY=your_stripe_secret_key_here
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key_here
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret_here
 "@
 
 try {
