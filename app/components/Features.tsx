@@ -5,14 +5,21 @@ import Image from 'next/image';
 
 const Features = () => {
   const [imageErrors, setImageErrors] = useState<{ [key: number]: boolean }>({});
+  const [imageLoading, setImageLoading] = useState<{ [key: number]: boolean }>({});
 
   const handleImageError = (index: number) => {
     console.log(`Image ${index} failed to load:`, features[index].image);
     setImageErrors(prev => ({ ...prev, [index]: true }));
+    setImageLoading(prev => ({ ...prev, [index]: false }));
   };
 
   const handleImageLoad = (index: number) => {
     console.log(`Image ${index} loaded successfully:`, features[index].image);
+    setImageLoading(prev => ({ ...prev, [index]: false }));
+  };
+
+  const handleImageStart = (index: number) => {
+    setImageLoading(prev => ({ ...prev, [index]: true }));
   };
   const features = [
     {
@@ -102,7 +109,14 @@ const Features = () => {
               className="group relative overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
             >
               {/* Feature Image/Visual */}
-              <div className="h-48 relative overflow-hidden">
+              <div className="h-48 relative overflow-hidden bg-gray-100">
+                {/* Loading State */}
+                {imageLoading[index] && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                )}
+                
                 {/* Background Image or Fallback */}
                 {!imageErrors[index] ? (
                   <Image 
@@ -111,6 +125,7 @@ const Features = () => {
                     width={400}
                     height={192}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    onLoadStart={() => handleImageStart(index)}
                     onLoad={() => handleImageLoad(index)}
                     onError={() => handleImageError(index)}
                   />
@@ -119,38 +134,40 @@ const Features = () => {
                     className="w-full h-full flex items-center justify-center"
                     style={{
                       background: feature.gradient === "gradient-to-r from-blue-400 to-purple-500" 
-                        ? "linear-gradient(to right, #60a5fa, #a855f7)"
+                        ? "linear-gradient(135deg, #60a5fa, #a855f7)"
                         : feature.gradient === "gradient-to-r from-pink-400 to-red-500"
-                        ? "linear-gradient(to right, #f472b6, #ef4444)"
+                        ? "linear-gradient(135deg, #f472b6, #ef4444)"
                         : feature.gradient === "gradient-to-r from-green-400 to-blue-500"
-                        ? "linear-gradient(to right, #4ade80, #3b82f6)"
+                        ? "linear-gradient(135deg, #4ade80, #3b82f6)"
                         : feature.gradient === "gradient-to-r from-yellow-400 to-orange-500"
-                        ? "linear-gradient(to right, #facc15, #f97316)"
+                        ? "linear-gradient(135deg, #facc15, #f97316)"
                         : feature.gradient === "gradient-to-r from-purple-400 to-pink-500"
-                        ? "linear-gradient(to right, #c084fc, #ec4899)"
-                        : "linear-gradient(to right, #818cf8, #06b6d4)"
+                        ? "linear-gradient(135deg, #c084fc, #ec4899)"
+                        : "linear-gradient(135deg, #818cf8, #06b6d4)"
                     }}
                   >
                     <div className="text-center text-white">
-                      <div className="w-16 h-16 mx-auto bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                      <div className="w-16 h-16 mx-auto bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4 shadow-lg">
                         {feature.icon}
                       </div>
-                      <p className="text-sm font-medium">Image Preview</p>
+                      <p className="text-sm font-medium">AI Generated</p>
                     </div>
                   </div>
                 )}
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition-all duration-300"></div>
+                
+                {/* Subtle overlay for better text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent group-hover:from-black/10 transition-all duration-300"></div>
+                
                 {/* Content */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="relative z-10 text-center">
-                    <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-full p-4 mb-4 inline-block">
-                      <div className="text-white">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 mb-4 inline-block shadow-lg group-hover:bg-white group-hover:shadow-xl transition-all duration-300">
+                      <div className="text-gray-700 group-hover:text-blue-600 transition-colors duration-300">
                         {feature.icon}
                       </div>
                     </div>
-                    <div className="w-20 h-20 mx-auto bg-white bg-opacity-30 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                      <svg className="w-10 h-10 text-white opacity-80" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="w-20 h-20 mx-auto bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg group-hover:bg-white group-hover:shadow-xl transition-all duration-300">
+                      <svg className="w-10 h-10 text-gray-700 group-hover:text-blue-600 transition-colors duration-300" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                       </svg>
                     </div>
