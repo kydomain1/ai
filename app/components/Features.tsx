@@ -149,25 +149,12 @@ const Features = () => {
                     <div className="text-center text-white">
                       <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 shadow-lg">
                         <p className="text-lg font-semibold">AI Generated</p>
-                        <p className="text-sm opacity-90">{feature.title}</p>
                       </div>
                     </div>
                   </div>
                 )}
                 
-                {/* Subtle overlay for better text readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent group-hover:from-black/10 transition-all duration-300"></div>
-                
-                {/* Content - 移除图标，只保留简洁的标题 */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative z-10 text-center">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-lg px-6 py-3 shadow-lg group-hover:bg-white group-hover:shadow-xl transition-all duration-300">
-                      <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
-                        {feature.title}
-                      </h3>
-                    </div>
-                  </div>
-                </div>
+                {/* 完全移除图片上的所有覆盖层和内容 */}
               </div>
 
               {/* Feature Content */}
