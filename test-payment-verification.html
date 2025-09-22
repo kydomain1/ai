@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付验证 API 测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .solution-step {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .solution-step h4 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .code-block {
+            background: #f1f3f4;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 支付验证 API 测试</h1>
+        <p>此页面用于测试修复后的支付验证 API。</p>
+        
+        <div class="test-section">
+            <h3>1. 问题分析</h3>
+            <div class="solution-step">
+                <h4>原始问题：</h4>
+                <div class="code-block">
+                    POST http://localhost:3000/api/verify-payment 401 (Unauthorized)
+                </div>
+                <p><strong>原因：</strong>API 依赖客户端认证状态，但 success 页面重定向后可能丢失认证信息。</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 修复方案</h3>
+            <div class="solution-step">
+                <h4>修复内容：</h4>
+                <div class="code-block">
+                    1. 从 Stripe session metadata 中获取用户 ID<br>
+                    2. 移除对客户端认证的依赖<br>
+                    3. 使用服务端 Supabase 客户端<br>
+                    4. 通过 Stripe 数据验证用户身份
+                </div>
+            </div>
+
+            <div class="solution-step">
+                <h4>修复后的流程：</h4>
+                <div class="code-block">
+                    1. 接收 sessionId 参数<br>
+                    2. 从 Stripe 获取 session 信息<br>
+                    3. 从 session.metadata 获取 user_id<br>
+                    4. 验证支付状态<br>
+                    5. 更新数据库
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. API 端点测试</h3>
+            <button onclick="testVerifyPaymentAPI()">测试 verify-payment API</button>
+            <div id="apiResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. 模拟支付验证</h3>
+            <button onclick="simulatePaymentVerification()">模拟支付验证</button>
+            <div id="simulationResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. 错误处理测试</h3>
+            <button onclick="testErrorHandling()">测试错误处理</button>
+            <div id="errorResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>6. 修复验证</h3>
+            <div class="solution-step">
+                <h4>验证步骤：</h4>
+                <ol>
+                    <li>完成一次支付流程</li>
+                    <li>检查 success 页面是否正常加载</li>
+                    <li>确认没有 401 错误</li>
+                    <li>验证积分是否正确添加</li>
+                    <li>检查数据库记录</li>
+                </ol>
+            </div>
+
+            <div class="solution-step">
+                <h4>预期结果：</h4>
+                <div class="code-block">
+                    ✅ API 返回 200 状态码<br>
+                    ✅ 积分正确添加到用户账户<br>
+                    ✅ 订阅记录保存到数据库<br>
+                    ✅ Success 页面显示积分添加确认<br>
+                    ✅ 没有认证相关错误
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>7. 如果问题仍然存在</h3>
+            <div class="solution-step">
+                <h4>检查清单：</h4>
+                <ul>
+                    <li>确认 Stripe session 包含 user_id metadata</li>
+                    <li>检查 Supabase 数据库权限设置</li>
+                    <li>验证 add_credits 函数是否存在</li>
+                    <li>确认 subscriptions 表结构正确</li>
+                </ul>
+            </div>
+
+            <div class="solution-step">
+                <h4>调试方法：</h4>
+                <div class="code-block">
+                    1. 查看浏览器控制台错误<br>
+                    2. 检查网络请求响应<br>
+                    3. 查看服务器日志<br>
+                    4. 使用 Stripe Dashboard 检查 session
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+
+        async function testVerifyPaymentAPI() {
+            let results = [];
+            
+            try {
+                results.push('测试 verify-payment API:');
+                
+                // 测试 API 端点是否存在
+                const response = await fetch('/api/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: 'test_session_id' })
+                });
+                
+                if (response.status === 400) {
+                    results.push('✅ API 端点存在');
+                    results.push('✅ 参数验证正常');
+                    results.push('⚠️ 需要有效的 sessionId');
+                } else if (response.status === 401) {
+                    results.push('❌ API 仍然返回 401 错误');
+                    results.push('⚠️ 修复可能未生效');
+                } else if (response.ok) {
+                    results.push('✅ API 端点正常');
+                    results.push('✅ 修复成功');
+                } else {
+                    results.push(`⚠️ API 响应异常: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                results.push(`\n响应内容: ${JSON.stringify(data, null, 2)}`);
+
+            } catch (error) {
+                results.push(`❌ API 测试失败: ${error.message}`);
+            }
+
+            showResult('apiResult', results.join('\n'), 'info');
+        }
+
+        async function simulatePaymentVerification() {
+            let results = [];
+            
+            try {
+                results.push('模拟支付验证流程:');
+                
+                // 模拟不同的测试场景
+                const testCases = [
+                    { name: '无效 sessionId', sessionId: 'invalid_session' },
+                    { name: '空 sessionId', sessionId: '' },
+                    { name: 'null sessionId', sessionId: null }
+                ];
+                
+                for (const testCase of testCases) {
+                    try {
+                        const response = await fetch('/api/verify-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ sessionId: testCase.sessionId })
+                        });
+                        
+                        const data = await response.json();
+                        results.push(`\n${testCase.name}:`);
+                        results.push(`- 状态码: ${response.status}`);
+                        results.push(`- 响应: ${data.error || data.message || 'Success'}`);
+                        
+                    } catch (error) {
+                        results.push(`\n${testCase.name}: 错误 - ${error.message}`);
+                    }
+                }
+                
+                results.push('\n预期结果:');
+                results.push('- 无效 sessionId: 400 错误');
+                results.push('- 空 sessionId: 400 错误');
+                results.push('- null sessionId: 400 错误');
+
+            } catch (error) {
+                results.push(`❌ 模拟测试失败: ${error.message}`);
+            }
+
+            showResult('simulationResult', results.join('\n'), 'info');
+        }
+
+        async function testErrorHandling() {
+            let results = [];
+            
+            try {
+                results.push('错误处理测试:');
+                
+                // 测试各种错误情况
+                const errorTests = [
+                    { name: '缺少 sessionId', body: {} },
+                    { name: '无效 JSON', body: 'invalid json' },
+                    { name: '错误方法', method: 'GET' }
+                ];
+                
+                for (const test of errorTests) {
+                    try {
+                        const response = await fetch('/api/verify-payment', {
+                            method: test.method || 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: typeof test.body === 'string' ? test.body : JSON.stringify(test.body)
+                        });
+                        
+                        results.push(`\n${test.name}:`);
+                        results.push(`- 状态码: ${response.status}`);
+                        
+                        if (response.status >= 400) {
+                            results.push('✅ 错误处理正常');
+                        } else {
+                            results.push('⚠️ 未正确处理错误');
+                        }
+                        
+                    } catch (error) {
+                        results.push(`\n${test.name}: 网络错误 - ${error.message}`);
+                    }
+                }
+
+            } catch (error) {
+                results.push(`❌ 错误处理测试失败: ${error.message}`);
+            }
+
+            showResult('errorResult', results.join('\n'), 'info');
+        }
+
+        // 页面加载时自动运行测试
+        window.addEventListener('load', () => {
+            testVerifyPaymentAPI();
+            simulatePaymentVerification();
+            testErrorHandling();
+        });
+    </script>
+</body>
+</html>

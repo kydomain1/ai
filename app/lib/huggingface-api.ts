@@ -1,5 +1,5 @@
-// Hugging Face Inference API 集成
-// 文档: https://huggingface.co/docs/api-inference
+// Hugging Face Inference API Integration
+// Documentation: https://huggingface.co/docs/api-inference
 
 export interface HuggingFaceImageRequest {
   inputs: string;
@@ -17,7 +17,7 @@ export interface HuggingFaceImageResponse {
 
 export class HuggingFaceAPI {
   private apiUrl = 'https://api-inference.huggingface.co/models';
-  private model = 'stabilityai/stable-diffusion-xl-base-1.0'; // 免费模型
+  private model = 'stabilityai/stable-diffusion-xl-base-1.0'; // Free model
   private apiKey: string;
 
   constructor(apiKey?: string) {
@@ -55,7 +55,7 @@ export class HuggingFaceAPI {
         throw new Error(`Hugging Face API error: ${response.status} - ${errorText}`);
       }
 
-      // Hugging Face API返回的是图片数据，需要转换为base64
+      // Hugging Face API returns image data, need to convert to base64
       const arrayBuffer = await response.arrayBuffer();
       const base64 = Buffer.from(arrayBuffer).toString('base64');
       
@@ -78,9 +78,9 @@ export class HuggingFaceAPI {
   }
 }
 
-// 备用免费API选项
+// Alternative free API options
 export class AlternativeFreeAPIs {
-  // Unsplash API - 获取免费图片（非生成）
+  // Unsplash API - Get free images (not generated)
   static async getUnsplashImage(query: string): Promise<string> {
     const accessKey = process.env.UNSPLASH_ACCESS_KEY || 'your-unsplash-key';
     const response = await fetch(
@@ -95,9 +95,9 @@ export class AlternativeFreeAPIs {
     return data.urls.regular;
   }
 
-  // Picsart API - 需要注册
+  // Picsart API - Requires registration
   static async generateWithPicsart(prompt: string): Promise<string> {
-    // 需要Picsart API密钥
+    // Requires Picsart API key
     const apiKey = process.env.PICSART_API_KEY || '';
     
     const response = await fetch('https://api.picsart.io/tools/demo/text2image', {

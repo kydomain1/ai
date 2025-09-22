@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>存储访问测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 存储访问测试页面</h1>
+        <p>此页面用于测试跟踪防护对存储访问的影响，并验证修复方案。</p>
+        
+        <div class="test-section">
+            <h3>1. 浏览器存储支持检测</h3>
+            <button onclick="testStorageSupport()">检测存储支持</button>
+            <div id="storageResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 跟踪防护状态检测</h3>
+            <button onclick="testTrackingPrevention()">检测跟踪防护</button>
+            <div id="trackingResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 存储操作测试</h3>
+            <button onclick="testStorageOperations()">测试存储操作</button>
+            <div id="operationsResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Supabase 连接测试</h3>
+            <button onclick="testSupabaseConnection()">测试 Supabase 连接</button>
+            <div id="supabaseResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. 解决方案建议</h3>
+            <div id="solutionsResult" class="result info">
+                等待测试完成后显示建议...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+
+        function testStorageSupport() {
+            let results = [];
+            let hasError = false;
+
+            // 测试 localStorage
+            try {
+                const testKey = 'test_localStorage_' + Date.now();
+                localStorage.setItem(testKey, 'test_value');
+                const retrieved = localStorage.getItem(testKey);
+                localStorage.removeItem(testKey);
+                
+                if (retrieved === 'test_value') {
+                    results.push('✅ localStorage: 正常工作');
+                } else {
+                    results.push('❌ localStorage: 数据不匹配');
+                    hasError = true;
+                }
+            } catch (error) {
+                results.push(`❌ localStorage: ${error.message}`);
+                hasError = true;
+            }
+
+            // 测试 sessionStorage
+            try {
+                const testKey = 'test_sessionStorage_' + Date.now();
+                sessionStorage.setItem(testKey, 'test_value');
+                const retrieved = sessionStorage.getItem(testKey);
+                sessionStorage.removeItem(testKey);
+                
+                if (retrieved === 'test_value') {
+                    results.push('✅ sessionStorage: 正常工作');
+                } else {
+                    results.push('❌ sessionStorage: 数据不匹配');
+                    hasError = true;
+                }
+            } catch (error) {
+                results.push(`❌ sessionStorage: ${error.message}`);
+                hasError = true;
+            }
+
+            // 测试 IndexedDB
+            try {
+                if ('indexedDB' in window) {
+                    results.push('✅ IndexedDB: 支持');
+                } else {
+                    results.push('❌ IndexedDB: 不支持');
+                }
+            } catch (error) {
+                results.push(`❌ IndexedDB: ${error.message}`);
+                hasError = true;
+            }
+
+            showResult('storageResult', results.join('\n'), hasError ? 'error' : 'success');
+        }
+
+        function testTrackingPrevention() {
+            let results = [];
+            let hasWarning = false;
+
+            // 检查隐私设置
+            if (navigator.doNotTrack === '1') {
+                results.push('⚠️ Do Not Track: 已启用');
+                hasWarning = true;
+            } else {
+                results.push('✅ Do Not Track: 未启用');
+            }
+
+            // 检查第三方 cookie 支持
+            try {
+                const testCookie = 'test_cookie_' + Date.now();
+                document.cookie = `${testCookie}=test; SameSite=None; Secure`;
+                const hasCookie = document.cookie.includes(testCookie);
+                document.cookie = `${testCookie}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+                
+                if (hasCookie) {
+                    results.push('✅ 第三方 Cookie: 支持');
+                } else {
+                    results.push('⚠️ 第三方 Cookie: 可能被阻止');
+                    hasWarning = true;
+                }
+            } catch (error) {
+                results.push(`⚠️ 第三方 Cookie: ${error.message}`);
+                hasWarning = true;
+            }
+
+            // 检查存储配额
+            if ('storage' in navigator && 'estimate' in navigator.storage) {
+                navigator.storage.estimate().then(estimate => {
+                    results.push(`📊 存储配额: ${Math.round(estimate.quota / 1024 / 1024)}MB 可用`);
+                    showResult('trackingResult', results.join('\n'), hasWarning ? 'warning' : 'success');
+                });
+            } else {
+                results.push('❓ 存储配额: 无法检测');
+                showResult('trackingResult', results.join('\n'), hasWarning ? 'warning' : 'success');
+            }
+        }
+
+        function testStorageOperations() {
+            let results = [];
+            let hasError = false;
+
+            // 模拟 Supabase 存储操作
+            const testData = {
+                access_token: 'test_token_' + Date.now(),
+                refresh_token: 'test_refresh_' + Date.now(),
+                expires_at: Date.now() + 3600000
+            };
+
+            try {
+                // 测试写入
+                const key = 'sb-test-session';
+                localStorage.setItem(key, JSON.stringify(testData));
+                results.push('✅ 写入操作: 成功');
+
+                // 测试读取
+                const retrieved = localStorage.getItem(key);
+                if (retrieved) {
+                    const parsed = JSON.parse(retrieved);
+                    if (parsed.access_token === testData.access_token) {
+                        results.push('✅ 读取操作: 成功');
+                    } else {
+                        results.push('❌ 读取操作: 数据不匹配');
+                        hasError = true;
+                    }
+                } else {
+                    results.push('❌ 读取操作: 数据为空');
+                    hasError = true;
+                }
+
+                // 测试删除
+                localStorage.removeItem(key);
+                const afterDelete = localStorage.getItem(key);
+                if (!afterDelete) {
+                    results.push('✅ 删除操作: 成功');
+                } else {
+                    results.push('❌ 删除操作: 数据仍存在');
+                    hasError = true;
+                }
+
+            } catch (error) {
+                results.push(`❌ 存储操作失败: ${error.message}`);
+                hasError = true;
+            }
+
+            showResult('operationsResult', results.join('\n'), hasError ? 'error' : 'success');
+        }
+
+        async function testSupabaseConnection() {
+            try {
+                showResult('supabaseResult', '正在测试 Supabase 连接...', 'info');
+                
+                // 检查环境变量
+                const supabaseUrl = 'NEXT_PUBLIC_SUPABASE_URL';
+                const supabaseKey = 'NEXT_PUBLIC_SUPABASE_ANON_KEY';
+                
+                let results = [];
+                results.push('🔍 环境变量检查:');
+                results.push(`- SUPABASE_URL: ${supabaseUrl ? '已设置' : '未设置'}`);
+                results.push(`- SUPABASE_ANON_KEY: ${supabaseKey ? '已设置' : '未设置'}`);
+                
+                // 尝试简单的 API 调用
+                try {
+                    const response = await fetch('/api/create-subscription', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ planType: 'basic' })
+                    });
+                    
+                    results.push(`\n🌐 API 连接测试:`);
+                    results.push(`- 状态码: ${response.status}`);
+                    
+                    if (response.status === 401) {
+                        results.push('- 结果: 需要认证（正常）');
+                    } else if (response.ok) {
+                        results.push('- 结果: 连接成功');
+                    } else {
+                        results.push('- 结果: 连接失败');
+                    }
+                } catch (apiError) {
+                    results.push(`\n🌐 API 连接测试: 失败 - ${apiError.message}`);
+                }
+                
+                showResult('supabaseResult', results.join('\n'), 'info');
+                
+            } catch (error) {
+                showResult('supabaseResult', `Supabase 连接测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载时自动运行一些测试
+        window.addEventListener('load', () => {
+            testStorageSupport();
+            testTrackingPrevention();
+            
+            // 延迟显示解决方案
+            setTimeout(() => {
+                const solutions = [
+                    '💡 解决方案建议:',
+                    '',
+                    '1. 如果 localStorage 被阻止:',
+                    '   - 使用 sessionStorage 作为后备',
+                    '   - 实现内存存储作为最后选择',
+                    '',
+                    '2. 如果第三方 Cookie 被阻止:',
+                    '   - 使用 SameSite=Lax 设置',
+                    '   - 考虑使用服务器端会话',
+                    '',
+                    '3. 如果跟踪防护影响功能:',
+                    '   - 在隐私设置中允许网站',
+                    '   - 使用 HTTPS 连接',
+                    '   - 确保域名在允许列表中',
+                    '',
+                    '4. 最佳实践:',
+                    '   - 实现渐进式存储策略',
+                    '   - 添加错误处理和回退机制',
+                    '   - 提供用户友好的错误提示'
+                ];
+                
+                showResult('solutionsResult', solutions.join('\n'), 'info');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

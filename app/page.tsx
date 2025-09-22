@@ -3,6 +3,7 @@ import Hero from './components/Hero';
 import WhatIs from './components/WhatIs';
 import Why from './components/Why';
 import Features from './components/Features';
+import Pricing from './components/Pricing';
 import HowTo from './components/HowTo';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
@@ -15,6 +16,7 @@ export default function Home() {
       <WhatIs />
       <Why />
       <Features />
+      <Pricing />
       <HowTo />
       <FAQ />
       <Footer />

@@ -119,16 +119,17 @@ const Features = () => {
                 
                 {/* Background Image or Fallback */}
                 {!imageErrors[index] ? (
-                  <Image 
-                    src={feature.image} 
-                    alt={feature.title}
-                    width={400}
-                    height={192}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    onLoadStart={() => handleImageStart(index)}
-                    onLoad={() => handleImageLoad(index)}
-                    onError={() => handleImageError(index)}
-                  />
+                <Image 
+                  src={feature.image} 
+                  alt={feature.title}
+                  width={400}
+                  height={192}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  style={{ width: 'auto', height: 'auto' }}
+                  onLoadStart={() => handleImageStart(index)}
+                  onLoad={() => handleImageLoad(index)}
+                  onError={() => handleImageError(index)}
+                />
                 ) : (
                   <div 
                     className="w-full h-full flex items-center justify-center"

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试结账功能</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 结账功能测试页面</h1>
+        
+        <div class="test-section">
+            <h3>1. 检查环境变量</h3>
+            <button onclick="checkEnvVars()">检查环境变量</button>
+            <div id="envResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 测试 API 连接</h3>
+            <button onclick="testAPI()">测试 API 连接</button>
+            <div id="apiResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 测试认证状态</h3>
+            <button onclick="checkAuth()">检查认证状态</button>
+            <div id="authResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. 测试结账流程</h3>
+            <button onclick="testCheckout('basic')">测试 Basic 计划</button>
+            <button onclick="testCheckout('pro')">测试 Pro 计划</button>
+            <div id="checkoutResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+
+        async function checkEnvVars() {
+            try {
+                const response = await fetch('/api/create-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ planType: 'basic' })
+                });
+                
+                const result = await response.json();
+                
+                if (response.status === 401) {
+                    showResult('envResult', `环境变量检查完成\n\nAPI 响应: ${JSON.stringify(result, null, 2)}\n\n状态: 401 Unauthorized - 这是预期的，因为用户未认证`, 'info');
+                } else {
+                    showResult('envResult', `环境变量检查完成\n\nAPI 响应: ${JSON.stringify(result, null, 2)}`, 'success');
+                }
+            } catch (error) {
+                showResult('envResult', `环境变量检查失败\n\n错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAPI() {
+            try {
+                const response = await fetch('/api/create-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ planType: 'basic' })
+                });
+                
+                const result = await response.json();
+                showResult('apiResult', `API 连接测试完成\n\n状态码: ${response.status}\n响应: ${JSON.stringify(result, null, 2)}`, response.ok ? 'success' : 'error');
+            } catch (error) {
+                showResult('apiResult', `API 连接测试失败\n\n错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkAuth() {
+            try {
+                // 检查是否有认证相关的 cookie
+                const cookies = document.cookie;
+                const authCookies = cookies.split(';').filter(cookie => 
+                    cookie.includes('supabase') || cookie.includes('auth') || cookie.includes('session')
+                );
+                
+                showResult('authResult', `认证状态检查\n\n当前 Cookie: ${cookies || '无'}\n\n认证相关 Cookie: ${authCookies.length > 0 ? authCookies.join(', ') : '无'}\n\n注意: 需要先登录才能进行结账测试`, 'info');
+            } catch (error) {
+                showResult('authResult', `认证状态检查失败\n\n错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCheckout(planType) {
+            try {
+                showResult('checkoutResult', `正在测试 ${planType} 计划结账...`, 'info');
+                
+                const response = await fetch('/api/create-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ planType })
+                });
+                
+                const result = await response.json();
+                
+                if (response.status === 401) {
+                    showResult('checkoutResult', `${planType} 计划结账测试\n\n结果: 需要先登录\n\nAPI 响应: ${JSON.stringify(result, null, 2)}\n\n这是正常的，因为用户未认证`, 'info');
+                } else if (response.ok) {
+                    showResult('checkoutResult', `${planType} 计划结账测试成功\n\nSession ID: ${result.sessionId}`, 'success');
+                } else {
+                    showResult('checkoutResult', `${planType} 计划结账测试失败\n\n状态码: ${response.status}\n响应: ${JSON.stringify(result, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('checkoutResult', `${planType} 计划结账测试失败\n\n错误: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

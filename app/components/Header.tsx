@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -71,6 +70,12 @@ const Header = () => {
               className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
             >
               AI Image Generation Features
+            </a>
+            <a
+              href="#pricing"
+              className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
+            >
+              Pricing
             </a>
             <a
               href="#how-to"
@@ -219,6 +224,12 @@ const Header = () => {
                 className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
               >
                 AI Image Generation Features
+              </a>
+              <a
+                href="#pricing"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors duration-200"
+              >
+                Pricing
               </a>
               <a
                 href="#how-to"

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { HuggingFaceAPI } from '../../lib/huggingface-api';
 import { uploadImageToR2 } from '../../lib/r2-upload';
 
-// 类型定义
+// Type definitions
 export interface GeneratedImage {
   id: string;
   url: string;
@@ -34,10 +34,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
       imageSize
     });
 
-    // 解析图片尺寸
+    // Parse image dimensions
     const [width, height] = imageSize.split('x').map(Number);
     
-    // 检查是否有有效的Hugging Face API密钥
+    // Check if there's a valid Hugging Face API key
     const hfApiKey = process.env.HUGGINGFACE_API_KEY;
     const hasValidApiKey = hfApiKey && hfApiKey !== 'test_key_placeholder' && hfApiKey.length > 10;
     
@@ -50,11 +50,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
     });
     
     if (hasValidApiKey) {
-      // 初始化Hugging Face API
+      // Initialize Hugging Face API
       const hfAPI = new HuggingFaceAPI();
       
       try {
-        // 尝试使用Hugging Face API生成图片
+        // Try to generate images using Hugging Face API
         const base64Images = await hfAPI.generateMultipleImages(prompt, imageCount, {
           width,
           height,
@@ -62,27 +62,27 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
 
         console.log(`Successfully generated ${base64Images.length} base64 images with Hugging Face API`);
 
-        // 将base64图片上传到R2并获取公开URL
+        // Upload base64 images to R2 and get public URLs
         const images: GeneratedImage[] = [];
         
         for (let i = 0; i < base64Images.length; i++) {
           const base64Image = base64Images[i];
           const dataUrl = `data:image/png;base64,${base64Image}`;
           
-          // 生成唯一的文件名
+          // Generate unique filename
           const fileName = `ai-generated-${Date.now()}-${i}`;
           
-          // 上传到R2
+          // Upload to R2
           const uploadResult = await uploadImageToR2(dataUrl, fileName);
           
           if (uploadResult.success && uploadResult.url) {
-            // 测试R2 URL是否可访问
+            // Test if R2 URL is accessible
             try {
               const testResponse = await fetch(uploadResult.url, { method: 'HEAD' });
               if (testResponse.ok) {
                 images.push({
                   id: `${Date.now()}-${i}`,
-                  url: uploadResult.url, // 使用R2的公开URL
+                  url: uploadResult.url, // Use R2 public URL
                   prompt: prompt,
                   size: imageSize,
                   createdAt: new Date().toISOString(),
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
                 console.log(`Successfully uploaded and verified image ${i + 1} to R2: ${uploadResult.url}`);
               } else {
                 console.warn(`R2 URL not accessible (${testResponse.status}), falling back to base64: ${uploadResult.url}`);
-                // R2 URL不可访问，回退到base64
+                // R2 URL not accessible, fallback to base64
                 images.push({
                   id: `${Date.now()}-${i}`,
                   url: dataUrl,
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
               }
             } catch (testError) {
               console.warn(`R2 URL test failed, falling back to base64:`, testError);
-              // R2 URL测试失败，回退到base64
+              // R2 URL test failed, fallback to base64
               images.push({
                 id: `${Date.now()}-${i}`,
                 url: dataUrl,
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
             }
           } else {
             console.error(`Failed to upload image ${i + 1} to R2:`, uploadResult.error);
-            // 如果R2上传失败，回退到base64 data URL
+            // If R2 upload fails, fallback to base64 data URL
             images.push({
               id: `${Date.now()}-${i}`,
               url: dataUrl,
@@ -136,13 +136,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<GenerateI
           stack: hfError instanceof Error ? hfError.stack : undefined,
           prompt: prompt
         });
-        // 继续执行本地图片逻辑
+        // Continue with local image logic
       }
     } else {
       console.log('No valid Hugging Face API key found, using local images');
     }
     
-    // 使用本地图片（作为演示或回退）
+    // Use local images (as demo or fallback)
     const localImages = ['/images/mountain.png', '/images/nightscape.png', '/images/山景.png', '/images/夜景.png'];
     const mockImageUrls: string[] = [];
     

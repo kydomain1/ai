@@ -1,13 +1,89 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://auuxaapaoquncipgswxb.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1dXhhYXBhb3F1bmNpcGdzd3hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMzIxMzksImV4cCI6MjA3MzkwODEzOX0.vjGYw9ly5fbmwzF-KR2FckQ_8ER2Qadz3hP5E32wCww';
 
 // 调试信息
 console.log('Supabase URL:', supabaseUrl);
 console.log('Supabase Anon Key:', supabaseAnonKey ? 'Present' : 'Missing');
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// 创建兼容的存储适配器
+const createStorageAdapter = () => {
+  if (typeof window === 'undefined') return undefined;
+  
+  return {
+    getItem: (key: string) => {
+      try {
+        // 优先尝试 localStorage
+        return localStorage.getItem(key);
+      } catch (error) {
+        console.warn('localStorage not available, trying sessionStorage:', error);
+        try {
+          // 回退到 sessionStorage
+          return sessionStorage.getItem(key);
+        } catch (sessionError) {
+          console.warn('sessionStorage also not available:', sessionError);
+          return null;
+        }
+      }
+    },
+    setItem: (key: string, value: string) => {
+      try {
+        localStorage.setItem(key, value);
+      } catch (error) {
+        console.warn('localStorage not available, using sessionStorage:', error);
+        try {
+          sessionStorage.setItem(key, value);
+        } catch (sessionError) {
+          console.warn('sessionStorage also not available:', sessionError);
+        }
+      }
+    },
+    removeItem: (key: string) => {
+      try {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key); // 同时清理两个存储
+      } catch (error) {
+        console.warn('Failed to remove item from storage:', error);
+      }
+    },
+  };
+};
+
+export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storage: createStorageAdapter(),
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce', // 使用 PKCE 流程，更安全且兼容性更好
+  },
+});
+
+// 导出 createClient 函数供服务器端使用
+export const createClient = (cookieStore?: any) => {
+  return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      storage: cookieStore ? {
+        getItem: (key: string) => {
+          const cookie = cookieStore.get(key);
+          return cookie?.value || null;
+        },
+        setItem: (key: string, value: string) => {
+          cookieStore.set(key, value, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7, // 7 days
+          });
+        },
+        removeItem: (key: string) => {
+          cookieStore.delete(key);
+        },
+      } : undefined,
+    },
+  });
+};
 
 // 用户类型定义
 export interface User {

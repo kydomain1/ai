@@ -8,18 +8,23 @@
     "start": "next start",
     "lint": "eslint",
     "setup-supabase": "node setup-supabase.js",
-    "config-env": "node create-env.js"
+    "config-env": "node create-env.js",
+    "config-stripe": "node create-stripe-env.js",
+    "quick-setup": "node quick-setup.js",
+    "diagnose": "node diagnose-config.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.0.0",
     "@aws-sdk/s3-request-presigner": "^3.0.0",
+    "@stripe/stripe-js": "^7.9.0",
     "@supabase/supabase-js": "^2.39.0",
     "dotenv": "^17.2.2",
     "next": "15.5.3",
     "node-fetch": "^3.3.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "replicate": "^1.2.0"
+    "replicate": "^1.2.0",
+    "stripe": "^18.5.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
