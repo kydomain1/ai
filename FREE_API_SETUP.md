@@ -87,7 +87,8 @@ STABILITY_API_KEY=your_stability_key_here
 3. 复制token
 4. 在项目根目录的 `.env.local` 文件中添加：
    ```
-   HUGGINGFACE_API_KEY=你的tokbangen
+   
+   你的tokbangen
    ```
 5. 重启服务器：`npm run dev`
 
