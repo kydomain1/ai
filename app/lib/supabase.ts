@@ -60,8 +60,20 @@ export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
+// 定义 CookieStore 接口
+interface CookieStore {
+  get: (key: string) => { value: string } | undefined;
+  set: (key: string, value: string, options?: {
+    httpOnly?: boolean;
+    secure?: boolean;
+    sameSite?: string;
+    maxAge?: number;
+  }) => void;
+  delete: (key: string) => void;
+}
+
 // 导出 createClient 函数供服务器端使用
-export const createClient = (cookieStore?: any) => {
+export const createClient = (cookieStore?: CookieStore) => {
   return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       storage: cookieStore ? {
